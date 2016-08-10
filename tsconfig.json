@@ -1,5 +1,6 @@
 {
     "files": [
+        "src/phaser.d.ts",
         "src/main.ts",
         "src/greet.ts"
     ],

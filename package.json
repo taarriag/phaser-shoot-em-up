@@ -1,5 +1,5 @@
 {
-  "name": "typescript-boilerplate",
+  "name": "phaser-ts-boilerplate",
   "version": "1.0.0",
   "main": "./dist/main.js",
   "scripts": {
@@ -9,6 +9,7 @@
   "license": "ISC",
   "devDependencies": {
     "browserify": "^13.1.0",
+    "del": "^2.2.1",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-typescript": "^2.13.6",
