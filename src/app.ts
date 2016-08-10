@@ -1,4 +1,4 @@
-/// <reference path="phaser.d.ts"/>
+/// <reference path="phaser/phaser.comments.d.ts"/>
 
 class SimpleGame {
     game : Phaser.Game;
