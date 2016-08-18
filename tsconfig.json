@@ -1,11 +1,31 @@
 {
-    "files": [
-        "src/phaser.d.ts",
-        "src/main.ts",
-        "src/greet.ts"
-    ],
     "compilerOptions": {
+        "outDir": "./dist/",
+        "sourceMap": true,
         "noImplicitAny": true,
+        "module": "commonjs",
         "target": "es5"
-    }
+    },
+    "files": [
+        "./src/app.ts"/*,
+        "./src/player.ts",
+        "./src/weapon.ts",
+        "./src/bullet.ts"*/
+    ],
+     "exclude": [
+        "node_modules"
+    ]
 }
+
+/*{
+    "compilerOptions": {
+        "module": "commonjs", //Replaced commonjs for amd (single output file)
+        "target": "es5",
+        "noImplicitAny": false,
+        "sourceMap": true
+        //"outFile": "dist/scripts/app.js"
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}*/

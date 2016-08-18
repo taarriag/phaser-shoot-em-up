@@ -1,0 +1,26 @@
+Compile with tsc -w
+Start a server in the dist folder using http-server from Node
+
+TODO:
+- Configure webpack (or gulp + browserify) again only with the required tasks
+- gulp + browserify have too many dependencies, especially gulp-typescript
+- Using webpack instead!!
+
+
+
+
+Instrucciones
+1. Configurar proyecto como npm
+ npm init
+
+2. Instalar globalmente typescript y webpack
+ npm install -g typescript webpack
+
+3. Instalar localmente dependencias de development
+ npm install --save-dev ts-loader source-map-loader
+
+4. Referenciar typescript instalado en el sistema desde la carpeta de modulos
+ npm link typescript
+
+5. Ejecutar webpack continuamente
+ webpack -w
