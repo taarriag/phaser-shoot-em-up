@@ -14,9 +14,12 @@ export class Player extends Phaser.Sprite {
         this.animations.add('left', [2]);
         this.anchor.setTo(0.5, 0.5);
         this.cursors = this.game.input.keyboard.createCursorKeys();
-        this.game.input.keyboard.addKeyCapture([Phaser.KeyCode.SPACEBAR]);
+        
         this.speed = 2;
         this.weapon = new TwinShot(this.game, bulletGroup, 'bullets', 0);
+        this.weapon.fireRateMillis = 200;
+        this.weapon.bulletSize = new Phaser.Rectangle(7, 0, 1, 8);
+        this.game.physics.arcade.enable(this);
     }
 
     public update() {

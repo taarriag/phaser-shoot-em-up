@@ -12,13 +12,19 @@ class SimpleGame {
     enemies : Phaser.Group;
     enemyBullets : Phaser.Group;
     playerBullets : Phaser.Group;
+    showDebug : boolean;
 
     constructor() {
         this.game = new Phaser.Game(240, 320, Phaser.CANVAS, 
-            'content', {preload : this.preload,
+            'content', {
+                preload : this.preload,
                 create: this.create, 
                 update: this.update, 
-                render: this.render});   
+                render: this.render,
+                enemyPlayerBulletCollision : this.enemyPlayerBulletCollision,
+                toggleDebug: this.toggleDebug});
+
+        this.showDebug = false;
     }
 
     preload() {
@@ -36,13 +42,21 @@ class SimpleGame {
         this.game.load.spritesheet('enemy', "resources/enemies.png", 16, 16);
         
         //TODO: Show the amount of objects in the debug menu!! 
-
+        this.game.input.keyboard.addKeyCapture([Phaser.KeyCode.SPACEBAR, Phaser.KeyCode.D]);
+        var dKey = this.game.input.keyboard.addKey(Phaser.KeyCode.D);
+        dKey.onDown.add(this.toggleDebug, this);
     }
 
     create() {
+        //Retrieve game and input variables
+        var game = this.game;
+        var input = this.game.input;
+
+
         //Enable arcade physics
-        this.game.physics.startSystem(Phaser.Physics.ARCADE);
+        game.physics.startSystem(Phaser.Physics.ARCADE);
         
+
         //Create the game groups
         this.enemies = this.game.add.group(this.game.world, "Enemies", false, true, Phaser.Physics.ARCADE);
         this.enemyBullets = this.game.add.group(this.game.world, "EnemyBullets", false, true, Phaser.Physics.ARCADE);
@@ -77,18 +91,48 @@ class SimpleGame {
                 var x = 2*enemy.width + Math.random() * (this.game.world.width - 2*enemy.width);
                 var y = -enemy.height;
                 enemy.start(x, y);
-                this.nextEnemyAt = now + (2500 + 500 * Math.random());
+                this.nextEnemyAt = now + (1000 + 500 * Math.random());
             }
         }
 
         //Check collisions
-        /*this.game.physics.arcade.overlap(this.player, this.enemies, this.playerEnemyCollision, null, this);
+        //this.game.physics.arcade.overlap(this.player, this.enemies, this.playerEnemyCollision, null, this);
+        //this.game.physics.arcade.collide(this.player, this.enemies);
         this.game.physics.arcade.overlap(this.player, this.enemyBullets, this.playerEnemyBulletCollision, null, this);
-        this.game.physics.arcade.overlap(this.enemies, this.playerBullets, this.enemyPlayerBulletCollision, null, this);*/
+        this.game.physics.arcade.overlap(this.enemies, this.playerBullets, this.enemyPlayerBulletCollision, null, this);
+        
     }
 
     render() {
+        if(this.showDebug)
+        {
+            for(var bullet of this.playerBullets.children)
+            {
+                var bulletSprite = bullet as Phaser.Sprite;
+                if(bulletSprite.exists)
+                    this.game.debug.body(bulletSprite);
+            }
 
+            for(var bullet of this.enemyBullets.children)
+            {
+                var bulletSprite = bullet as Phaser.Sprite;
+                if(bulletSprite.exists)
+                    this.game.debug.body(bulletSprite);
+            }
+
+            for(var enemy of this.enemies.children)
+            {
+                var enemySprite = enemy as Phaser.Sprite;
+                if(enemySprite.exists)
+                    this.game.debug.body(enemySprite);
+            }
+
+            this.game.debug.body(this.player);
+        }
+    }
+
+    toggleDebug() {
+        this.showDebug = !this.showDebug;
     }
 
     playerEnemyCollision(playerObj : any, enemyObj : any)

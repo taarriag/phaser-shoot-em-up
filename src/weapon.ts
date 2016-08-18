@@ -9,6 +9,7 @@ export abstract class Weapon
     nextFireMillis : number;
     spriteKey : string;
     spriteFrame : number;
+    bulletSize : Phaser.Rectangle;
 
     ///Instantiates a new weapon. Overriding constructors can pass or not a bulletkey to reserve a buffer 
     ///of bullets inmediately. 
@@ -19,6 +20,8 @@ export abstract class Weapon
         this.spriteKey = spriteKey || null;
         this.spriteFrame = spriteFrame || null;
         this.nextFireMillis = 0;
+        this.bulletSize = null;
+        
     }
 
     getNextBullet() : Bullet
@@ -29,8 +32,11 @@ export abstract class Weapon
 
         bullet.key = this.spriteKey;
         bullet.frame = this.spriteFrame; 
-        //this.game.physics.arcade.enable(bullet);
-        
+        if(this.bulletSize != null)
+        {
+            var bulletSize = this.bulletSize;
+            bullet.body.setSize(bulletSize.width, this.bulletSize.height, this.bulletSize.x, this.bulletSize.y);
+        }
         return bullet;
     }
     
@@ -53,7 +59,7 @@ export class SingleBulletWeapon extends Weapon
     constructor(game : Phaser.Game, bulletGroup : Phaser.Group, spriteKey : string, spriteFrame : number)
     {
         super(game, bulletGroup, spriteKey, spriteFrame);
-        this.fireRateMillis = 100;
+        this.fireRateMillis = 200;
         this.bulletSpeed = 600;
     }
 

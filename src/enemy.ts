@@ -19,6 +19,7 @@ export class Enemy extends Phaser.Sprite
         this.shooting = false;
         var singleBullet = new SingleBulletWeapon(this.game, enemyBullets, "bullets", 4);
         singleBullet.bulletSpeed = 150;
+        singleBullet.bulletSize = new Phaser.Rectangle(4, 5, 5, 5);
         this.weapon = singleBullet;
     }
 
