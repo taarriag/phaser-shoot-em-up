@@ -15,7 +15,7 @@ export class Enemy extends Phaser.Sprite
         this.animations.add('blinking', [21, 20], 8, false);
         this.exists = false; 
         this.nextFireAt = 0;
-        this.fireRate = 500;
+        this.fireRate = 1000;
         this.shooting = false;
         var singleBullet = new SingleBulletWeapon(this.game, enemyBullets, "bullets", 4);
         singleBullet.bulletSpeed = 150;
@@ -26,7 +26,7 @@ export class Enemy extends Phaser.Sprite
     start(x : number, y : number) : void
     {
         this.reset(x, y); 
-        this.body.velocity = new Phaser.Point(0, 50);    
+        this.body.velocity = new Phaser.Point(0, 80);    
     }
 
     update() : void
@@ -47,7 +47,7 @@ export class Enemy extends Phaser.Sprite
             var source = new Phaser.Point(this.position.x, this.position.y + 10);
             this.animations.play('blinking');
             this.weapon.fire(this.position, 90);
-            this.nextFireAt = now + 2000 + this.fireRate * Math.random();
+            this.nextFireAt = now + 1000 + this.fireRate * Math.random();
             this.shooting = true;
         }
 
