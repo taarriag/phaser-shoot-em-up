@@ -29,10 +29,8 @@ export class Player extends Phaser.Sprite {
         this.weapon = new TwinShot(this.game, bulletGroup, 'bullets', 0);
         this.weapon.fireRateMillis = 200;
         this.weapon.bulletSize = new Phaser.Rectangle(7, 0, 1, 8);
-        this.lives = 2;
-        this.alive = false;
         this.game.physics.arcade.enable(this);
-
+        this.alive = false;
     }
 
     public start() : void {
@@ -46,20 +44,21 @@ export class Player extends Phaser.Sprite {
         switch(this.state)
         {
             case PlayerState.Starting:
-                this.y -= 1 * this.speed;
+                this.y += 1 * this.speed;
                 var world = this.game.world;
                 if(this.y < world.height - 2 * this.height)
                     this.state = PlayerState.Playing;
                 break;
             case PlayerState.Playing:
                 this.updatePlaying();
-                break;         
+                break;
             case PlayerState.Restarting:
-                if(this.game.time.now > this.restartAt)
-                {
-                    this.start();
-                }       
+                
+                this.state = PlayerState.Dead;
+                break;
             case PlayerState.Dead:
+                if(this.lives >= 0 && this.game.time.now > this.restartAt)
+                    this.start();
                 break;    
         }
     }
@@ -115,21 +114,20 @@ export class Player extends Phaser.Sprite {
     public kill() : Phaser.Sprite
     {
         //TODO: Add explosion visual effect
-        
         if(this.lives > 0)
         {
-            this.lives--;            
-            this.restartAt = this.game.time.now + 250;
+            this.lives--;
+            this.restartAt = this.game.time.now + 1000;
             this.state = PlayerState.Restarting;
         }
         else 
         {
             //TODO: Add a game over text to the screen
             var world = this.game.world;
-            var style = {font: "32px Arial", fill: "#ff0044", align: "center"}
+            var style = {font: "65px Arial", fill: "#ff0044", align: "center"}
             var gameOverText = this.game.add.text(world.centerX,world.centerY, "Game Over", style);
             gameOverText.anchor.set(0.5, 0.5);
-            this.state = PlayerState.Dead; 
+            this.state = PlayerState.Dead;    
         }        
         return super.kill();
     }

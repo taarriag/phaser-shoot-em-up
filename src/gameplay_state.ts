@@ -1,5 +1,5 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
-import { Player } from "./player.ts";
+import { Player, PlayerState } from "./player.ts";
 import { Enemy } from "./enemy.ts";
 import { Bullet } from "./bullet.ts";
 
@@ -11,6 +11,7 @@ export class GameplayState extends Phaser.State
     enemies : Phaser.Group;
     enemyBullets : Phaser.Group;
     playerBullets : Phaser.Group;
+    livesText : Phaser.Text;
     showDebug : boolean;
     
     constructor()
@@ -38,7 +39,9 @@ export class GameplayState extends Phaser.State
         //TODO: Show the amount of objects in the debug menu!! 
         this.game.input.keyboard.addKeyCapture([Phaser.KeyCode.SPACEBAR, Phaser.KeyCode.D]);
         var dKey = this.game.input.keyboard.addKey(Phaser.KeyCode.D);
+        var rKey = this.game.input.keyboard.addKey(Phaser.KeyCode.R);
         dKey.onDown.add(this.toggleDebug, this);
+        rKey.onDown.add(this.tryRestart, this);
     }
 
     create() {
@@ -52,23 +55,31 @@ export class GameplayState extends Phaser.State
         
 
         //Create the game groups
-        this.enemies = this.game.add.group(this.game.world, "Enemies", false, true, Phaser.Physics.ARCADE);
-        this.enemyBullets = this.game.add.group(this.game.world, "EnemyBullets", false, true, Phaser.Physics.ARCADE);
-        this.playerBullets = this.game.add.group(this.game.world, "PlayerBullets", false, true, Phaser.Physics.ARCADE);
+        this.enemies = game.add.group(this.game.world, "Enemies", false, true, Phaser.Physics.ARCADE);
+        this.enemyBullets = game.add.group(this.game.world, "EnemyBullets", false, true, Phaser.Physics.ARCADE);
+        this.playerBullets = game.add.group(this.game.world, "PlayerBullets", false, true, Phaser.Physics.ARCADE);
         for(var i = 0; i < 10; i++)
         {
-            this.enemies.add(new Enemy(this.game, 0, 0, this.enemyBullets), true);
+            this.enemies.add(new Enemy(game, 0, 0, this.enemyBullets), true);
         }
 
         for(var i = 0; i < 128; i++)
         {
-            this.enemyBullets.add(new Bullet(this.game, 'bullets', 0), true);
-            this.playerBullets.add(new Bullet(this.game, 'bullets', 0), true);
+            this.enemyBullets.add(new Bullet(game, 'bullets', 0), true);
+            this.playerBullets.add(new Bullet(game, 'bullets', 0), true);
         }
 
         //Create the player and add it to the game
-        this.player = new Player(this.game, this.game.world.centerX, this.game.world.centerY, this.playerBullets);
+        this.player = new Player(game, game.world.centerX, this.game.world.centerY, this.playerBullets);
         this.game.add.existing(this.player);
+        this.player.start();
+
+
+        //UI Initialization
+        var style = {font: "24px Arial", fill: "#ffffff", align: "left"}
+        this.livesText = game.add.text(16, game.world.height - 32, "", style);
+        this.livesText.text = ""+this.player.lives;
+
 
         //Startup variables
         var now = this.game.time.now;
@@ -90,38 +101,28 @@ export class GameplayState extends Phaser.State
         }
 
         //Check collisions
-        //this.game.physics.arcade.overlap(this.player, this.enemies, this.playerEnemyCollision, null, this);
-        //this.game.physics.arcade.collide(this.player, this.enemies);
+        this.game.physics.arcade.overlap(this.player, this.enemies, this.playerEnemyCollision, null, this);
         this.game.physics.arcade.overlap(this.player, this.enemyBullets, this.playerEnemyBulletCollision, null, this);
         this.game.physics.arcade.overlap(this.enemies, this.playerBullets, this.enemyPlayerBulletCollision, null, this);
-        
     }
 
     render() {
         if(this.showDebug)
         {
-            for(var bullet of this.playerBullets.children)
-            {
-                var bulletSprite = bullet as Phaser.Sprite;
-                if(bulletSprite.exists)
-                    this.game.debug.body(bulletSprite);
-            }
-
-            for(var bullet of this.enemyBullets.children)
-            {
-                var bulletSprite = bullet as Phaser.Sprite;
-                if(bulletSprite.exists)
-                    this.game.debug.body(bulletSprite);
-            }
-
-            for(var enemy of this.enemies.children)
-            {
-                var enemySprite = enemy as Phaser.Sprite;
-                if(enemySprite.exists)
-                    this.game.debug.body(enemySprite);
-            }
-
+            this.debugGroup(this.enemyBullets);
+            this.debugGroup(this.playerBullets);
+            this.debugGroup(this.enemies);
             this.game.debug.body(this.player);
+        }
+    }
+
+    debugGroup(group : Phaser.Group)
+    {
+        for(var child of group.children)
+        {
+            var childSprite = child as Phaser.Sprite;
+            if(childSprite.exists)
+                this.game.debug.body(childSprite);
         }
     }
 
@@ -129,21 +130,36 @@ export class GameplayState extends Phaser.State
         this.showDebug = !this.showDebug;
     }
 
+    tryRestart() {
+        if(this.player.state == PlayerState.Dead)
+        {
+            //Restart the stage if the player is dead
+            this.game.state.start(this.game.state.current);
+        }
+    }
+
     playerEnemyCollision(playerObj : any, enemyObj : any)
     {
+        
         var player = playerObj as Player;
+        if(player.state != PlayerState.Playing)
+            return;
         var enemy = enemyObj as Enemy;
-        //player.kill();
-        //enemy.kill();
+        player.kill();
+        enemy.kill();
+        this.updateLivesText();
+        
     }
 
     playerEnemyBulletCollision(playerObj : any, bulletObj : any)
     {
         var player = playerObj as Player;
         var enemyBullet = bulletObj as Bullet;
-        //player.kill();
-        //enemyBullet.kill();
-        //this.enemyBullets.remove
+        if(player.state != PlayerState.Playing)
+            return;
+        player.kill();
+        enemyBullet.kill();
+        this.updateLivesText();
     }
 
     enemyPlayerBulletCollision(enemyObj : any, bulletObj : any)
@@ -152,5 +168,14 @@ export class GameplayState extends Phaser.State
         var playerBullet = bulletObj as Bullet;
         enemy.kill();
         playerBullet.kill();
+        this.updateLivesText();
+    }
+
+    updateLivesText()
+    {
+        if(this.player.state != PlayerState.Dead)
+            this.livesText.text = this.player.lives.toString();
+        else
+            this.livesText.text = "";
     }
 }
