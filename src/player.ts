@@ -16,6 +16,7 @@ export class Player extends Phaser.Sprite {
     lives : number;
     state : PlayerState;
     restartAt : number;
+    score : number;
 
     constructor(game : Phaser.Game, x : number, y : number, bulletGroup : Phaser.Group) 
     {
@@ -32,7 +33,6 @@ export class Player extends Phaser.Sprite {
         this.lives = 2;
         this.alive = false;
         this.game.physics.arcade.enable(this);
-
     }
 
     public start() : void {
@@ -125,10 +125,6 @@ export class Player extends Phaser.Sprite {
         else 
         {
             //TODO: Add a game over text to the screen
-            var world = this.game.world;
-            var style = {font: "32px Arial", fill: "#ff0044", align: "center"}
-            var gameOverText = this.game.add.text(world.centerX,world.centerY, "Game Over", style);
-            gameOverText.anchor.set(0.5, 0.5);
             this.state = PlayerState.Dead; 
         }        
         return super.kill();

@@ -11,6 +11,8 @@ export class GameplayState extends Phaser.State
     enemies : Phaser.Group;
     enemyBullets : Phaser.Group;
     playerBullets : Phaser.Group;
+    score : number;
+    scoreText : Phaser.Text;
     livesText : Phaser.Text;
     showDebug : boolean;
     
@@ -39,9 +41,9 @@ export class GameplayState extends Phaser.State
         //TODO: Show the amount of objects in the debug menu!! 
         this.game.input.keyboard.addKeyCapture([Phaser.KeyCode.SPACEBAR, Phaser.KeyCode.D]);
         var dKey = this.game.input.keyboard.addKey(Phaser.KeyCode.D);
-        var rKey = this.game.input.keyboard.addKey(Phaser.KeyCode.R);
+        var tKey = this.game.input.keyboard.addKey(Phaser.KeyCode.T);
         dKey.onDown.add(this.toggleDebug, this);
-        rKey.onDown.add(this.tryRestart, this);
+        tKey.onDown.add(this.tryRestart, this);
     }
 
     create() {
@@ -49,10 +51,8 @@ export class GameplayState extends Phaser.State
         var game = this.game;
         var input = this.game.input;
 
-
         //Enable arcade physics
         game.physics.startSystem(Phaser.Physics.ARCADE);
-        
 
         //Create the game groups
         this.enemies = game.add.group(this.game.world, "Enemies", false, true, Phaser.Physics.ARCADE);
@@ -76,10 +76,14 @@ export class GameplayState extends Phaser.State
 
 
         //UI Initialization
+        this.score = 0;
         var style = {font: "24px Arial", fill: "#ffffff", align: "left"}
         this.livesText = game.add.text(16, game.world.height - 32, "", style);
         this.livesText.text = ""+this.player.lives;
-
+        var style2 = {font : "12px Arial", fill: "#ffffff", align: "left"}
+        this.scoreText = game.add.text(8, 8, "", style2);
+        this.scoreText.text = "0";
+        this.updateScoreText();
 
         //Startup variables
         var now = this.game.time.now;
@@ -112,7 +116,8 @@ export class GameplayState extends Phaser.State
             this.debugGroup(this.enemyBullets);
             this.debugGroup(this.playerBullets);
             this.debugGroup(this.enemies);
-            this.game.debug.body(this.player);
+            if(this.player.exists)
+                this.game.debug.body(this.player);
         }
     }
 
@@ -149,6 +154,9 @@ export class GameplayState extends Phaser.State
         enemy.kill();
         this.updateLivesText();
         
+        if(player.state == PlayerState.Dead)
+            this.showGameOver();
+        
     }
 
     playerEnemyBulletCollision(playerObj : any, bulletObj : any)
@@ -160,15 +168,24 @@ export class GameplayState extends Phaser.State
         player.kill();
         enemyBullet.kill();
         this.updateLivesText();
+
+        if(player.state == PlayerState.Dead)
+            this.showGameOver();
     }
 
     enemyPlayerBulletCollision(enemyObj : any, bulletObj : any)
     {
         var enemy = enemyObj as Enemy;
         var playerBullet = bulletObj as Bullet;
-        enemy.kill();
+        //Only kill the enemy if its actually being shown
+        if(enemy.y > 0)
+        {
+            this.score += 10;
+            enemy.kill();
+            this.updateScoreText();
+        }
         playerBullet.kill();
-        this.updateLivesText();
+        
     }
 
     updateLivesText()
@@ -177,5 +194,18 @@ export class GameplayState extends Phaser.State
             this.livesText.text = this.player.lives.toString();
         else
             this.livesText.text = "";
+    }
+
+    updateScoreText()
+    {
+        this.scoreText.text = this.score.toString();
+    }
+
+    showGameOver()
+    {
+        var world = this.game.world;
+        var style = {font: "32px Arial", fill: "#ff0044", align: "center"}
+        var gameOverText = this.game.add.text(world.centerX,world.centerY, "Game Over", style);
+        gameOverText.anchor.set(0.5, 0.5);
     }
 }
