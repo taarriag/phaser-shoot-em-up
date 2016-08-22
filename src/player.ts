@@ -17,6 +17,7 @@ export class Player extends Phaser.Sprite {
     state : PlayerState;
     restartAt : number;
     score : number;
+    
 
     constructor(game : Phaser.Game, x : number, y : number, bulletGroup : Phaser.Group) 
     {
@@ -33,12 +34,14 @@ export class Player extends Phaser.Sprite {
         this.lives = 2;
         this.alive = false;
         this.game.physics.arcade.enable(this);
+        
     }
 
     public start() : void {
         var x = this.game.world.centerX;
         var y = this.game.world.height + this.height + 50;
         this.reset(x, y);
+        this.body.setSize(11, 7, 3, 4);
         this.state = PlayerState.Starting;
     }
 

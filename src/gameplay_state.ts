@@ -1,6 +1,6 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
 import { Player, PlayerState } from "./player.ts";
-import { Enemy } from "./enemy.ts";
+import { Enemy, SpecialEnemy } from "./enemy.ts";
 import { Bullet } from "./bullet.ts";
 
 export class GameplayState extends Phaser.State
@@ -32,7 +32,7 @@ export class GameplayState extends Phaser.State
         //Ensure that we are not moving in subpixel space. A movement of 1 pixel in the non-scaled world equals to 2 pixels
         //on the actual screen. 
         this.game.renderer.renderSession.roundPixels = true;
-        Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
+        //Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
         this.game.scale.pageAlignHorizontally = true;
         this.game.load.spritesheet('player', "resources/player.png", 16, 16);
         this.game.load.spritesheet('bullets', "resources/bullets.png", 16, 16);
@@ -58,9 +58,9 @@ export class GameplayState extends Phaser.State
         this.enemies = game.add.group(this.game.world, "Enemies", false, true, Phaser.Physics.ARCADE);
         this.enemyBullets = game.add.group(this.game.world, "EnemyBullets", false, true, Phaser.Physics.ARCADE);
         this.playerBullets = game.add.group(this.game.world, "PlayerBullets", false, true, Phaser.Physics.ARCADE);
-        for(var i = 0; i < 10; i++)
+        for(var i = 0; i < 5; i++)
         {
-            this.enemies.add(new Enemy(game, 0, 0, this.enemyBullets), true);
+            this.enemies.add(new SpecialEnemy(game, 0, 0, this.enemyBullets), true);
         }
 
         for(var i = 0; i < 128; i++)
@@ -68,12 +68,11 @@ export class GameplayState extends Phaser.State
             this.enemyBullets.add(new Bullet(game, 'bullets', 0), true);
             this.playerBullets.add(new Bullet(game, 'bullets', 0), true);
         }
-
-        //Create the player and add it to the game
+        
+                //Create the player and add it to the game
         this.player = new Player(game, game.world.centerX, this.game.world.centerY, this.playerBullets);
         this.game.add.existing(this.player);
         this.player.start();
-
 
         //UI Initialization
         this.score = 0;
@@ -99,6 +98,7 @@ export class GameplayState extends Phaser.State
             {
                 var x = 2*enemy.width + Math.random() * (this.game.world.width - 2*enemy.width);
                 var y = -enemy.height;
+                enemy.setTarget(this.player);
                 enemy.start(x, y);
                 this.nextEnemyAt = now + (750 + 500 * Math.random());
             }

@@ -35,7 +35,7 @@ export abstract class Weapon
         if(this.bulletSize != null)
         {
             var bulletSize = this.bulletSize;
-            bullet.body.setSize(bulletSize.width, this.bulletSize.height, this.bulletSize.x, this.bulletSize.y);
+            bullet.body.setSize(bulletSize.width, bulletSize.height, bulletSize.x, bulletSize.y);
         }
         return bullet;
     }
