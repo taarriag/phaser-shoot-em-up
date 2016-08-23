@@ -29,7 +29,7 @@ export class Player extends Phaser.Sprite {
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.speed = 2;
         this.weapon = new TwinShot(this.game, bulletGroup, 'bullets', 0);
-        this.weapon.fireRateMillis = 200;
+        this.weapon.fireRateMillis = 300;
         this.weapon.bulletSize = new Phaser.Rectangle(7, 0, 1, 8);
         this.lives = 2;
         this.alive = false;

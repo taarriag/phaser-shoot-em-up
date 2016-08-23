@@ -19,6 +19,8 @@ export class EnemySpawner
     protected yEnd : number;
     protected minDelay : number;
     protected maxDelay : number;
+    protected partIndex : number;
+
 
     constructor(game : Phaser.Game, player : Player, 
                 enemies : Phaser.Group, 
@@ -30,6 +32,7 @@ export class EnemySpawner
         this.enemyBullets = enemyBullets;
         this.minDelay = 250;
         this.maxDelay = 500;
+        this.partIndex = -1;
     }
 
     //Spawn the enemy and its bullets
@@ -57,45 +60,10 @@ export class EnemySpawner
         {
             var enemy = this.enemies.getFirstExists(false) as Enemy;
             if(enemy)
-            {
-                //var x = 2*enemy.width + Math.random() * (this.game.world.width - 2*enemy.width);
-                
-                //Find a partition without any enemies
-                //TODO: Randomize the direction search so that they arent always 
-                //created at the start.
-                var partitionFound = false;
-                this.xStart = 16;
-                this.xEnd = 0.25 * (this.game.world.width - 32);
-                while(this.xEnd <= (this.game.world.width - 16))
-                {
-                    var enemyFound = false;
-                    //Iterate over the enemies, check that no enemy is using this space
-                    for(var aux of this.enemies.children)
-                    {
-                        //If an alive enemy is using this space, 
-                        var auxEnemy = aux as Enemy;
-                        if(auxEnemy.exists && 
-                            this.xStart <= auxEnemy.x &&
-                            auxEnemy.x <= this.xEnd)
-                        {
-                            enemyFound = true;
-                            break;
-                        }
-                    }
-                    if(enemyFound)
-                    {
-                        this.xStart += 0.25 * (this.game.world.width - 32);
-                        this.xEnd += 0.25 * (this.game.world.width - 32);
-                        //this.xStart = Math.min(this.xStart, this.game.world.width - 32);
-                        //this.xEnd = Math.min(this.xEnd, this.game.world.width);
-                    }
-                    else 
-                    {
-                        partitionFound = true;
-                        break;
-                    }
-                }
-
+            {   
+                //Find a partition without any enemies 
+                var partitionFound = this.findPartition();
+                //var partitionFound = false;
                 //If we werent able to find a free partition, do not create the enemy.
                 if(!partitionFound)
                 {
@@ -125,6 +93,55 @@ export class EnemySpawner
                 this.nextEnemyAt = this.game.time.now + (500 + 500 * Math.random());
             }
         }
+    }
+
+
+    protected findPartition() : boolean
+    {
+        //Tries to find a partition, setting xStart and xEnd accordingly.
+        //Returns true if it was able to find an empty partition.
+        var partitionFound = false;
+        this.updatePartitionIndex();
+
+        //Execute up to max_steps steps to find an empty spot.
+        var max_steps = 4;
+        var steps = 0;
+        while(steps < max_steps)
+        {
+            steps++;
+            var enemyFound = false;
+            //Iterate over the enemies, check that no enemy is using this space
+            for(var aux of this.enemies.children)
+            {
+                //If an alive enemy is using this space, 
+                var auxEnemy = aux as Enemy;
+                if(auxEnemy.exists && 
+                    this.xStart <= auxEnemy.x &&
+                    auxEnemy.x <= this.xEnd)
+                {
+                    enemyFound = true;
+                    break;
+                }
+            }
+            if(enemyFound)
+            {
+                this.updatePartitionIndex();
+            }
+            else 
+            {
+                partitionFound = true;
+                break;
+            }
+        }
+        return partitionFound;
+    }
+
+    protected updatePartitionIndex() : void
+    {
+        var spawnWidth = this.game.world.width - 32;
+        this.partIndex = (this.partIndex + 1) % 4;
+        this.xStart = 16 + this.partIndex * 0.25 * spawnWidth;;
+        this.xEnd = 16 + (this.partIndex + 1) * 0.25 * spawnWidth;
     }
 
 }
