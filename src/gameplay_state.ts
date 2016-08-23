@@ -1,4 +1,5 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
+import { EnemySpawner } from "./enemy_spawner.ts";
 import { Player, PlayerState } from "./player.ts";
 import { Enemy, SpecialEnemy } from "./enemy.ts";
 import { Bullet } from "./bullet.ts";
@@ -7,7 +8,7 @@ export class GameplayState extends Phaser.State
 {
     player : Player;
     cursors : Phaser.CursorKeys;
-    nextEnemyAt : number;
+    
     enemies : Phaser.Group;
     enemyBullets : Phaser.Group;
     playerBullets : Phaser.Group;
@@ -15,6 +16,7 @@ export class GameplayState extends Phaser.State
     scoreText : Phaser.Text;
     livesText : Phaser.Text;
     showDebug : boolean;
+    enemySpawner : EnemySpawner;
     
     constructor()
     {
@@ -58,18 +60,15 @@ export class GameplayState extends Phaser.State
         this.enemies = game.add.group(this.game.world, "Enemies", false, true, Phaser.Physics.ARCADE);
         this.enemyBullets = game.add.group(this.game.world, "EnemyBullets", false, true, Phaser.Physics.ARCADE);
         this.playerBullets = game.add.group(this.game.world, "PlayerBullets", false, true, Phaser.Physics.ARCADE);
-        for(var i = 0; i < 5; i++)
-        {
-            this.enemies.add(new SpecialEnemy(game, 0, 0, this.enemyBullets), true);
-        }
 
+        //Initialize the bullets
         for(var i = 0; i < 128; i++)
         {
             this.enemyBullets.add(new Bullet(game, 'bullets', 0), true);
             this.playerBullets.add(new Bullet(game, 'bullets', 0), true);
         }
         
-                //Create the player and add it to the game
+        //Create the player and add it to the game
         this.player = new Player(game, game.world.centerX, this.game.world.centerY, this.playerBullets);
         this.game.add.existing(this.player);
         this.player.start();
@@ -84,27 +83,13 @@ export class GameplayState extends Phaser.State
         this.scoreText.text = "0";
         this.updateScoreText();
 
-        //Startup variables
-        var now = this.game.time.now;
-        this.nextEnemyAt = now + (1000 * Math.random()); 
+        //Initialize the enemy spawner
+        this.enemySpawner = new EnemySpawner(this.game, this.player, this.enemies, this.enemyBullets);
+        this.enemySpawner.start(); 
     }
 
     update() {
-        var now = this.game.time.now;
-        if(now > this.nextEnemyAt)
-        {
-            var enemy = this.enemies.getFirstExists(false) as Enemy;
-            if(enemy)
-            {
-                var x = 2*enemy.width + Math.random() * (this.game.world.width - 2*enemy.width);
-                var y = -enemy.height;
-                enemy.setTarget(this.player);
-                enemy.start(x, y);
-                this.nextEnemyAt = now + (750 + 500 * Math.random());
-            }
-        }
-
-        //Check collisions
+        this.enemySpawner.update();
         this.game.physics.arcade.overlap(this.player, this.enemies, this.playerEnemyCollision, null, this);
         this.game.physics.arcade.overlap(this.player, this.enemyBullets, this.playerEnemyBulletCollision, null, this);
         this.game.physics.arcade.overlap(this.enemies, this.playerBullets, this.enemyPlayerBulletCollision, null, this);

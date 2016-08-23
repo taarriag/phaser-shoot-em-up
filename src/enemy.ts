@@ -1,10 +1,11 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
 import {Weapon, SingleBulletWeapon} from "./weapon.ts";
-import { Player } from "./player.ts";
+import { Player, PlayerState } from "./player.ts";
 
 /***
  * For the time being, this will contain every possible enemy state.
  * Note that some enemies might not use all of them.
+ * TODO: Change it for a more flexible FSM model using behaviours
  */
 export enum EnemyState
 {
@@ -22,7 +23,9 @@ export class Enemy extends Phaser.Sprite
     public shooting : boolean;
     protected target : Phaser.Sprite; 
     protected state : EnemyState;
-    
+    protected finalPos : Phaser.Point;
+    protected delay : number = 0;
+
     constructor(game : Phaser.Game, x : number, y : number, enemyBullets : Phaser.Group)
     {
         super(game, x, y, 'enemy');
@@ -37,6 +40,7 @@ export class Enemy extends Phaser.Sprite
         singleBullet.bulletSpeed = 150;
         singleBullet.bulletSize = new Phaser.Rectangle(4, 5, 5, 5);
         this.weapon = singleBullet;
+        this.delay = 0;
         
     }
 
@@ -50,6 +54,20 @@ export class Enemy extends Phaser.Sprite
     {
         this.target = target;
     }   
+
+    /**
+     * Sets the final position of this enemy, usually this is the position
+     * the enemy will arrive to after the entry tween
+     */
+    public setFinalPos(finalPos : Phaser.Point)
+    {
+        this.finalPos = finalPos;
+    }
+
+    public setDelay(delay : number) : void 
+    {
+        this.delay = delay;
+    }
 
     public start(x : number, y : number) : void
     {
@@ -75,11 +93,21 @@ export class Enemy extends Phaser.Sprite
 
     protected tryShoot() : boolean
     {
+        //If there is no target, do not shoot.
+        if(this.target == null || this.target.alive == false)
+        {
+            return false;
+        }
+        
+        //Try to cast the target as a player.
+        var player = this.target as Player;
+        if (player != null && player.state != PlayerState.Playing)
+            return;
+
         var now = this.game.time.now;
         if(now > this.nextFireAt)
         {
             var source = new Phaser.Point(this.position.x, this.position.y + 10);
-            this.animations.play('blinking');
             this.weapon.fire(this.position, this.angle + 90);
             this.nextFireAt = now + this.fireRate + this.fireRate * Math.random();
             this.shooting = true;
@@ -90,7 +118,7 @@ export class Enemy extends Phaser.Sprite
 
     protected checkOutOfBounds()
     {
-        if(this.y > this.game.world.height + this.height)
+        if(this.y > this.game.world.height + this.height*2)
         {
             this.kill();
         }
@@ -105,18 +133,27 @@ export class SpecialEnemy extends Enemy
     protected tween : Phaser.Tween;
     protected state : number;
     protected numShots : number;
-    protected delay : number = 0;
+    
     
     public start(x : number, y : number) : void
     {
         this.reset(x, y); 
         this.rotation = 0;
         this.body.setSize(12, 14, 2, 2);
-        var finalY = this.game.world.centerY - this.height * 6;
-        this.tween = this.game.add.tween(this).to({x : this.x, y : finalY}, 2000, Phaser.Easing.Back.InOut, true, this.delay);
+
+        var finalX = this.x;
+        var finalY = this.game.world.centerY - this.height * 3;
+        if(this.finalPos != null)
+        {
+            finalX = this.finalPos.x;
+            finalY = this.finalPos.y;
+        }
+
+        this.tween = this.game.add.tween(this).to({x : finalX, y : finalY}, 2000, Phaser.Easing.Back.InOut, true, this.delay);
         this.state = EnemyState.Starting;
         this.numShots = 0;
         this.delay = 0;
+        this.animations.play('idle');
     }
 
     public update() : void
@@ -139,6 +176,7 @@ export class SpecialEnemy extends Enemy
                 var shot = this.tryShoot();
                 if(shot)
                 {
+                    //this.animations.play('blinking');
                     this.numShots++;
                     if(this.numShots >= 3)
                     {
@@ -163,12 +201,14 @@ export class SpecialEnemy extends Enemy
 
             case EnemyState.Leaving:
                 this.turnTowardsTarget();
+                this.checkOutOfBounds();
                 break;
 
         }
 
-        this.checkOutOfBounds();
-        this.animations.play('idle');
+        //Only play the idle animation if there is no other animation showing.
+        /*if(this.animations.currentAnim.name != 'idle' && this.animations.currentAnim.isFinished)
+            this.animations.play('idle');*/
     }
 
     protected turnTowardsTarget() : void
@@ -180,6 +220,15 @@ export class SpecialEnemy extends Enemy
             var pAngleRad = Math.atan2(pDelta.y, pDelta.x) - Math.PI*0.5;
             this.rotation = pAngleRad;  
         }
+    }
+
+    public kill() : Phaser.Sprite
+    {
+        if(this.tween != null)
+        {
+            this.tween.stop(false);
+        }
+        return super.kill();
     }
 
 }
