@@ -1,6 +1,7 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
-import {Weapon, SingleBulletWeapon} from "./weapon.ts";
+import { Weapon, SingleBulletWeapon } from "./weapon.ts";
 import { Player, PlayerState } from "./player.ts";
+import { ExplosionParticle } from "./explosion_particle.ts";
 
 /***
  * For the time being, this will contain every possible enemy state.
@@ -25,6 +26,9 @@ export class Enemy extends Phaser.Sprite
     protected state : EnemyState;
     protected finalPos : Phaser.Point;
     protected delay : number = 0;
+    
+    //TODO: Add one emitter per enemy, position it at the enemy position and release particles
+    protected emitter : Phaser.Particles.Arcade.Emitter;
 
     constructor(game : Phaser.Game, x : number, y : number, enemyBullets : Phaser.Group)
     {
@@ -37,10 +41,13 @@ export class Enemy extends Phaser.Sprite
         this.fireRate = 1000;
         this.shooting = false;
         var singleBullet = new SingleBulletWeapon(this.game, enemyBullets, "bullets", 4);
-        singleBullet.bulletSpeed = 150;
+        singleBullet.bulletSpeed = 75;
         singleBullet.bulletSize = new Phaser.Rectangle(4, 5, 5, 5);
         this.weapon = singleBullet;
         this.delay = 0;
+        this.emitter = this.game.add.emitter(x, y, 15);
+        //this.emitter.particleClass = ExplosionParticle;
+        this.emitter.makeParticles('explosions', 2, 15, false, false);
         
     }
 
@@ -205,10 +212,6 @@ export class SpecialEnemy extends Enemy
                 break;
 
         }
-
-        //Only play the idle animation if there is no other animation showing.
-        /*if(this.animations.currentAnim.name != 'idle' && this.animations.currentAnim.isFinished)
-            this.animations.play('idle');*/
     }
 
     protected turnTowardsTarget() : void
@@ -228,6 +231,28 @@ export class SpecialEnemy extends Enemy
         {
             this.tween.stop(false);
         }
+
+        
+        this.emitter.x = this.x;
+        this.emitter.y = this.y;
+        this.emitter.width = this.body.width;
+        this.emitter.height = this.body.height;
+
+        //Scale without scaling
+        this.emitter.setScale(
+            0.5, 1.5, 
+            0.5, 1.5, 
+            1000, Phaser.Easing.Linear.None, false);
+        this.emitter.setAlpha(
+            1, 0.0, 1800, 
+            Phaser.Easing.Linear.None, false);
+        this.emitter.minParticleSpeed.set(0, 0);
+        this.emitter.maxParticleSpeed.set(0, 0);
+        this.emitter.gravity = 0;
+        this.emitter.setRotation(0, 0);
+        this.emitter.angularDrag = 0;
+        this.emitter.start(false, 2000, 100, 3);
+        
         return super.kill();
     }
 

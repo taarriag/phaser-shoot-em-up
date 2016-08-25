@@ -7,7 +7,6 @@ class ShooterGame extends Phaser.Game{
 
     constructor() {
         super(180, 260, Phaser.CANVAS, 'content');
-        
         /*this.game = new Phaser.Game(240, 320, Phaser.CANVAS, 
             'content', {
                 preload : this.preload,

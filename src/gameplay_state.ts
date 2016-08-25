@@ -34,13 +34,17 @@ export class GameplayState extends Phaser.State
         //Ensure that we are not moving in subpixel space. A movement of 1 pixel in the non-scaled world equals to 2 pixels
         //on the actual screen. 
         this.game.renderer.renderSession.roundPixels = true;
+        
         //Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
         this.game.scale.pageAlignHorizontally = true;
         this.game.load.spritesheet('player', "resources/player.png", 16, 16);
         this.game.load.spritesheet('bullets', "resources/bullets.png", 16, 16);
         this.game.load.spritesheet('enemy', "resources/enemies.png", 16, 16);
-        
-        //TODO: Show the amount of objects in the debug menu!! 
+        this.game.load.spritesheet('explosions', "resources/explosions.png", 16, 16);
+
+        //TODO: Use multi texture support to improve performance!
+        //Read this: http://phaser.io/news/2016/07/multitexturing-support-added
+         
         this.game.input.keyboard.addKeyCapture([Phaser.KeyCode.SPACEBAR, Phaser.KeyCode.D]);
         var dKey = this.game.input.keyboard.addKey(Phaser.KeyCode.D);
         var tKey = this.game.input.keyboard.addKey(Phaser.KeyCode.T);
@@ -53,6 +57,9 @@ export class GameplayState extends Phaser.State
         var game = this.game;
         var input = this.game.input;
 
+        //Debug related stuff
+        game.time.advancedTiming = true;
+
         //Enable arcade physics
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -60,7 +67,7 @@ export class GameplayState extends Phaser.State
         this.enemies = game.add.group(this.game.world, "Enemies", false, true, Phaser.Physics.ARCADE);
         this.enemyBullets = game.add.group(this.game.world, "EnemyBullets", false, true, Phaser.Physics.ARCADE);
         this.playerBullets = game.add.group(this.game.world, "PlayerBullets", false, true, Phaser.Physics.ARCADE);
-
+        
         //Initialize the bullets
         for(var i = 0; i < 128; i++)
         {
@@ -104,6 +111,7 @@ export class GameplayState extends Phaser.State
             if(this.player.exists)
                 this.game.debug.body(this.player);
         }
+        this.game.debug.text(this.game.time.fps.toString(), 2, 14, "#00ff00");
     }
 
     debugGroup(group : Phaser.Group)
@@ -141,7 +149,6 @@ export class GameplayState extends Phaser.State
         
         if(player.state == PlayerState.Dead)
             this.showGameOver();
-        
     }
 
     playerEnemyBulletCollision(playerObj : any, bulletObj : any)
