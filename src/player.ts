@@ -16,8 +16,7 @@ export class Player extends Phaser.Sprite {
     lives : number;
     state : PlayerState;
     restartAt : number;
-    score : number;
-    
+    score : number;    
 
     constructor(game : Phaser.Game, x : number, y : number, bulletGroup : Phaser.Group) 
     {
@@ -27,21 +26,20 @@ export class Player extends Phaser.Sprite {
         this.animations.add('left', [2]);
         this.anchor.setTo(0.5, 0.5);
         this.cursors = this.game.input.keyboard.createCursorKeys();
-        this.speed = 2;
+        this.speed = 4;
         this.weapon = new TwinShot(this.game, bulletGroup, 'bullets', 0);
         this.weapon.fireRateMillis = 300;
         this.weapon.bulletSize = new Phaser.Rectangle(7, 0, 1, 8);
         this.lives = 2;
         this.alive = false;
         this.game.physics.arcade.enable(this);
-        
     }
 
     public start() : void {
         var x = this.game.world.centerX;
         var y = this.game.world.height + this.height + 50;
         this.reset(x, y);
-        this.body.setSize(11, 7, 3, 4);
+        this.body.setSize(32, 14, 16, 35);
         this.state = PlayerState.Starting;
     }
 
@@ -97,15 +95,15 @@ export class Player extends Phaser.Sprite {
         this.x += dx * this.speed;
         this.y += dy * this.speed;
 
-        if(this.x < 0)
+        if(this.x < 0 )
             this.x = 0;
         else if(this.x > this.game.camera.width)
             this.x = this.game.camera.width;
 
-        if(this.y < 0)
-            this.y = 0;
-        else if(this.y > this.game.camera.height)
-            this.y = this.game.camera.height;
+        if(this.y < 0 + this.body.height)
+            this.y = this.body.height;
+        else if(this.y  > this.game.camera.height - this.body.height)
+            this.y = this.game.camera.height - this.body.height;
 
         //Firing bullets
         if(game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) && this.weapon)

@@ -28,17 +28,17 @@ export class GameplayState extends Phaser.State
         this.showDebug = false;
 
         //Scale the game windows by two in both directions
-        this.game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE;
-        this.game.scale.setUserScale(2,2);
+        //this.game.scale.scaleMode = Phaser.ScaleManager.USER_SCALE;
+        this.game.scale.setUserScale(1,1);
 
         //Ensure that we are not moving in subpixel space. A movement of 1 pixel in the non-scaled world equals to 2 pixels
         //on the actual screen. 
-        this.game.renderer.renderSession.roundPixels = true;
+        //this.game.renderer.renderSession.roundPixels = true;
         
         //Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
         this.game.scale.pageAlignHorizontally = true;
-        this.game.load.spritesheet('player', "resources/player.png", 16, 16);
-        this.game.load.spritesheet('bullets', "resources/bullets.png", 16, 16);
+        this.game.load.spritesheet('player', "resources/new_player_64.png", 64, 64);
+        this.game.load.spritesheet('bullets', "resources/new_bullets.png", 32, 32);
         this.game.load.spritesheet('enemy', "resources/enemies.png", 16, 16);
         this.game.load.spritesheet('explosions', "resources/explosions.png", 16, 16);
 
@@ -92,11 +92,11 @@ export class GameplayState extends Phaser.State
 
         //Initialize the enemy spawner
         this.enemySpawner = new EnemySpawner(this.game, this.player, this.enemies, this.enemyBullets);
-        this.enemySpawner.start(); 
+        //this.enemySpawner.start(); 
     }
 
     update() {
-        this.enemySpawner.update();
+        //this.enemySpawner.update();
         this.game.physics.arcade.overlap(this.player, this.enemies, this.playerEnemyCollision, null, this);
         this.game.physics.arcade.overlap(this.player, this.enemyBullets, this.playerEnemyBulletCollision, null, this);
         this.game.physics.arcade.overlap(this.enemies, this.playerBullets, this.enemyPlayerBulletCollision, null, this);
