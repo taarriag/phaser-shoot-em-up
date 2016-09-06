@@ -27,9 +27,11 @@ export class Player extends Phaser.Sprite {
         this.anchor.setTo(0.5, 0.5);
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.speed = 4;
-        this.weapon = new TwinShot(this.game, bulletGroup, 'bullets', 0);
-        this.weapon.fireRateMillis = 300;
-        this.weapon.bulletSize = new Phaser.Rectangle(7, 0, 1, 8);
+        var twinShoot = new TwinShot(this.game, bulletGroup, 'bullets', 8); 
+        twinShoot.fireRateMillis = 200;
+        twinShoot.bulletSize = new Phaser.Rectangle(7, 0, 1, 8);
+        twinShoot.bulletSpacing = 10; 
+        this.weapon = twinShoot;
         this.lives = 2;
         this.alive = false;
         this.game.physics.arcade.enable(this);
@@ -49,7 +51,7 @@ export class Player extends Phaser.Sprite {
             case PlayerState.Starting:
                 this.y -= 1 * this.speed;
                 var world = this.game.world;
-                if(this.y < world.height - 2 * this.height)
+                if(this.y < world.height - 1.5 * this.height)
                     this.state = PlayerState.Playing;
                 break;
             case PlayerState.Playing:
@@ -109,7 +111,7 @@ export class Player extends Phaser.Sprite {
         if(game.input.keyboard.isDown(Phaser.KeyCode.SPACEBAR) && this.weapon)
         {
             var point = new Phaser.Point(this.position.x, this.position.y - 10);
-            this.weapon.tryFire(this.position, -90);
+            this.weapon.tryFire(point, -90);
         }
     }   
 

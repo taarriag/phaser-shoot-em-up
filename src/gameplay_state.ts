@@ -1,8 +1,9 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
+/// <reference path="typings/slick-ui.d.ts"/>
 import { EnemySpawner } from "./enemy_spawner.ts";
 import { Player, PlayerState } from "./player.ts";
 import { Enemy, SpecialEnemy } from "./enemy.ts";
-import { Bullet } from "./bullet.ts";
+import { Bullet } from "./bullet.ts"; 
 
 export class GameplayState extends Phaser.State
 {
@@ -17,6 +18,8 @@ export class GameplayState extends Phaser.State
     livesText : Phaser.Text;
     showDebug : boolean;
     enemySpawner : EnemySpawner;
+
+    slickUI : any;
     
     constructor()
     {
@@ -38,7 +41,7 @@ export class GameplayState extends Phaser.State
         //Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
         this.game.scale.pageAlignHorizontally = true;
         this.game.load.spritesheet('player', "resources/new_player_64.png", 64, 64);
-        this.game.load.spritesheet('bullets', "resources/new_bullets.png", 32, 32);
+        this.game.load.spritesheet('bullets', "resources/bullets2.png", 32, 32);
         this.game.load.spritesheet('enemy', "resources/enemies.png", 16, 16);
         this.game.load.spritesheet('explosions', "resources/explosions.png", 16, 16);
 
@@ -50,6 +53,11 @@ export class GameplayState extends Phaser.State
         var tKey = this.game.input.keyboard.addKey(Phaser.KeyCode.T);
         dKey.onDown.add(this.toggleDebug, this);
         tKey.onDown.add(this.tryRestart, this);
+
+        //Load slick-ui 
+        //this.slickUI = this.game.plugins.add(Phaser.Plugin.SlickUI);
+        /*this.slickUI = this.game.plugins.add(new Phaser.Plugin.SlickUI(this.game, this.stage));
+        this.slickUI.load('resources/ui/kenney/kenney.json');*/
     }
 
     create() {

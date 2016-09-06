@@ -80,22 +80,25 @@ export class SingleBulletWeapon extends Weapon
 
 export class TwinShot extends Weapon
 {
+    bulletSpacing : number;
+
     constructor(game : Phaser.Game, bulletGroup : Phaser.Group, spriteKey : string, spriteFrame : number)
     {
         super(game, bulletGroup, spriteKey, spriteFrame);
         this.fireRateMillis = 100;
         this.bulletSpeed = 600;
+        this.bulletSpacing = 5;
     }
 
     fire(source : Phaser.Point, shootAngle : number) : void
     {
         var bullet1 = this.getNextBullet();
         if(bullet1)
-            bullet1.fire(source.x - 4, source.y - 10, shootAngle, this.bulletSpeed, 0, 0, -90);
+            bullet1.fire(source.x - this.bulletSpacing, source.y, shootAngle, this.bulletSpeed, 0, 0, -90);
 
         var bullet2 = this.getNextBullet();
         if(bullet2)
-            bullet2.fire(source.x + 5, source.y - 10, shootAngle, this.bulletSpeed, 0, 0, -90);
+            bullet2.fire(source.x + this.bulletSpacing, source.y, shootAngle, this.bulletSpeed, 0, 0, -90);
     }
 }
 
