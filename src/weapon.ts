@@ -73,7 +73,7 @@ export class SingleBulletWeapon extends Weapon
         {
             var x = source.x;
             var y = source.y;
-            bullet.fire(x, y, shootAngle, this.bulletSpeed, 0, 0);
+            bullet.fire(new Phaser.Point(x, y), shootAngle, this.bulletSpeed, 0.0, new Phaser.Point(0, 0));
         }
     }
 }
@@ -94,11 +94,21 @@ export class TwinShot extends Weapon
     {
         var bullet1 = this.getNextBullet();
         if(bullet1)
-            bullet1.fire(source.x - this.bulletSpacing, source.y, shootAngle, this.bulletSpeed, 0, 0, -90);
+        {
+            var origin = new Phaser.Point(source.x - this.bulletSpacing, source.y);
+            var gravity = new Phaser.Point(0,0);
+            bullet1.fire(origin, shootAngle, this.bulletSpeed, 0.0, gravity, -90);
+        }
+            
 
         var bullet2 = this.getNextBullet();
         if(bullet2)
-            bullet2.fire(source.x + this.bulletSpacing, source.y, shootAngle, this.bulletSpeed, 0, 0, -90);
+        {
+            var origin = new Phaser.Point(source.x + this.bulletSpacing, source.y);
+            var gravity = new Phaser.Point(0,0);
+            bullet2.fire(origin, shootAngle, this.bulletSpeed, 0.0, gravity, -90);
+        }
+            
     }
 }
 
@@ -119,7 +129,7 @@ export class ScatterShotWeapon extends Weapon
         {
             var x = (source.x - 5) + Math.random() * 10;
             var y = source.y - 10;
-            bullet.fire(x,y, shootAngle, this.bulletSpeed, 0, 0); 
+            bullet.fire(new Phaser.Point(x,y), shootAngle, this.bulletSpeed, 0.0, new Phaser.Point(0,0));
         }
     }
 }

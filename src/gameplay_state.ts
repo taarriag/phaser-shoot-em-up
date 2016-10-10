@@ -10,6 +10,7 @@ export class GameplayState extends Phaser.State
     player : Player;
     cursors : Phaser.CursorKeys;
     
+    playerGroup : Phaser.Group;
     enemies : Phaser.Group;
     enemyBullets : Phaser.Group;
     playerBullets : Phaser.Group;
@@ -42,7 +43,8 @@ export class GameplayState extends Phaser.State
         this.game.scale.pageAlignHorizontally = true;
         this.game.load.spritesheet('player', "resources/new_player_64.png", 64, 64);
         this.game.load.spritesheet('bullets', "resources/bullets2.png", 32, 32);
-        this.game.load.spritesheet('enemy', "resources/enemies.png", 16, 16);
+        //this.game.load.spritesheet('enemy', "resources/enemies.png", 16, 16);
+        this.game.load.spritesheet('enemy', "resources/new_enemy_64.png", 64, 64);
         this.game.load.spritesheet('explosions', "resources/explosions.png", 16, 16);
 
         //TODO: Use multi texture support to improve performance!
@@ -53,11 +55,6 @@ export class GameplayState extends Phaser.State
         var tKey = this.game.input.keyboard.addKey(Phaser.KeyCode.T);
         dKey.onDown.add(this.toggleDebug, this);
         tKey.onDown.add(this.tryRestart, this);
-
-        //Load slick-ui 
-        //this.slickUI = this.game.plugins.add(Phaser.Plugin.SlickUI);
-        /*this.slickUI = this.game.plugins.add(new Phaser.Plugin.SlickUI(this.game, this.stage));
-        this.slickUI.load('resources/ui/kenney/kenney.json');*/
     }
 
     create() {
@@ -72,10 +69,11 @@ export class GameplayState extends Phaser.State
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         //Create the game groups
+        this.playerGroup = game.add.group(this.game.world, "Player", false, true, Phaser.Physics.ARCADE);        
         this.enemies = game.add.group(this.game.world, "Enemies", false, true, Phaser.Physics.ARCADE);
-        this.enemyBullets = game.add.group(this.game.world, "EnemyBullets", false, true, Phaser.Physics.ARCADE);
         this.playerBullets = game.add.group(this.game.world, "PlayerBullets", false, true, Phaser.Physics.ARCADE);
-        
+        this.enemyBullets = game.add.group(this.game.world, "EnemyBullets", false, true, Phaser.Physics.ARCADE);
+
         //Initialize the bullets
         for(var i = 0; i < 128; i++)
         {
@@ -85,7 +83,7 @@ export class GameplayState extends Phaser.State
         
         //Create the player and add it to the game
         this.player = new Player(game, game.world.centerX, this.game.world.centerY, this.playerBullets);
-        this.game.add.existing(this.player);
+        this.playerGroup.add(this.player); 
         this.player.start();
 
         //UI Initialization
@@ -100,11 +98,11 @@ export class GameplayState extends Phaser.State
 
         //Initialize the enemy spawner
         this.enemySpawner = new EnemySpawner(this.game, this.player, this.enemies, this.enemyBullets);
-        //this.enemySpawner.start(); 
+        this.enemySpawner.start(); 
     }
 
     update() {
-        //this.enemySpawner.update();
+        this.enemySpawner.update();
         this.game.physics.arcade.overlap(this.player, this.enemies, this.playerEnemyCollision, null, this);
         this.game.physics.arcade.overlap(this.player, this.enemyBullets, this.playerEnemyBulletCollision, null, this);
         this.game.physics.arcade.overlap(this.enemies, this.playerBullets, this.enemyPlayerBulletCollision, null, this);

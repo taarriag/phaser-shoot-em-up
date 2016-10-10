@@ -2,6 +2,7 @@
 export class Bullet extends Phaser.Sprite
 {
     speed : number;
+    angSpeed : number;
     tracking : boolean;
     scaleSpeed : number;
     spriteAngle : number;
@@ -21,16 +22,17 @@ export class Bullet extends Phaser.Sprite
         this.tracking = false;
         this.scaleSpeed = 0;
     }
-
-    fire(x : number, y : number, angle : number, speed : number, gx? : number, gy? : number, spriteAngle? : number)
+    
+    fire(origin : Phaser.Point, angle : number, speed : number, angSpeed : number = 0, gravity? : Phaser.Point, spriteAngle? : number)
     {
         //Reset the object, making it visible, alive, etc.
-        var gx = gx || 0;
-        var gy = gy || 0;
-        this.reset(x, y);
+        this.reset(origin.x, origin.y);
         this.game.physics.arcade.velocityFromAngle(angle, speed, this.body.velocity);
         this.angle = (spriteAngle) ? angle - spriteAngle : angle;
-        this.body.gravity.set (gx, gy);
+        if(gravity != null)
+            this.body.gravity.set (gravity.x, gravity.y);
+        else
+            this.body.gravity.set (0,0);
     }
     
 
@@ -42,11 +44,14 @@ export class Bullet extends Phaser.Sprite
             //TODO: Fix this when changing the angle
             this.rotation = Math.atan2(this.body.velocity.y, this.body.velocity.x); 
         }
+        this.rotation += (this.angSpeed * Math.PI/180.0);
 
         if(this.scaleSpeed > 0)
         {
             this.scale.x += this.scaleSpeed;
             this.scale.y += this.scaleSpeed;
         }
+
+        
     }
 }

@@ -104,7 +104,7 @@ export class EnemySpawner
         this.updatePartitionIndex();
 
         //Execute up to max_steps steps to find an empty spot.
-        var max_steps = 4;
+        var max_steps = 3;
         var steps = 0;
         while(steps < max_steps)
         {
@@ -139,7 +139,7 @@ export class EnemySpawner
     protected updatePartitionIndex() : void
     {
         var spawnWidth = this.game.world.width - 32;
-        this.partIndex = (this.partIndex + 1) % 4;
+        this.partIndex = (this.partIndex + 1) % 3;
         this.xStart = 16 + this.partIndex * 0.25 * spawnWidth;;
         this.xEnd = 16 + (this.partIndex + 1) * 0.25 * spawnWidth;
     }

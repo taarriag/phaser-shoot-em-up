@@ -1,7 +1,7 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
 import { Weapon, SingleBulletWeapon } from "./weapon.ts";
 import { Player, PlayerState } from "./player.ts";
-import { ExplosionParticle } from "./explosion_particle.ts";
+import { ExplosionEmitter } from "./explosion_emitter.ts";
 
 /***
  * For the time being, this will contain every possible enemy state.
@@ -26,28 +26,26 @@ export class Enemy extends Phaser.Sprite
     protected state : EnemyState;
     protected finalPos : Phaser.Point;
     protected delay : number = 0;
-    
-    //TODO: Add one emitter per enemy, position it at the enemy position and release particles
-    protected emitter : Phaser.Particles.Arcade.Emitter;
+    protected explosionEmitter : ExplosionEmitter
+
 
     constructor(game : Phaser.Game, x : number, y : number, enemyBullets : Phaser.Group)
     {
         super(game, x, y, 'enemy');
         this.anchor.setTo(0.5, 0.5);
-        this.animations.add('idle', [20])
-        this.animations.add('blinking', [21, 20], 8, false);
+        this.animations.add('idle', [0]);
+        /*this.animations.add('idle', [20])
+        this.animations.add('blinking', [21, 20], 8, false);*/
         this.exists = false; 
         this.nextFireAt = 0;
         this.fireRate = 1000;
         this.shooting = false;
-        var singleBullet = new SingleBulletWeapon(this.game, enemyBullets, "bullets", 4);
-        singleBullet.bulletSpeed = 75;
-        singleBullet.bulletSize = new Phaser.Rectangle(4, 5, 5, 5);
+        var singleBullet = new SingleBulletWeapon(this.game, enemyBullets, "bullets", 7);
+        singleBullet.bulletSpeed = 120;
+        singleBullet.bulletSize = new Phaser.Rectangle(106 - 3*32, 42 - 32, 12, 12);
         this.weapon = singleBullet;
         this.delay = 0;
-        this.emitter = this.game.add.emitter(x, y, 15);
-        //this.emitter.particleClass = ExplosionParticle;
-        this.emitter.makeParticles('explosions', 2, 15, false, false);
+        this.explosionEmitter = new ExplosionEmitter(game);
         
     }
 
@@ -79,8 +77,9 @@ export class Enemy extends Phaser.Sprite
     public start(x : number, y : number) : void
     {
         this.reset(x, y); 
-        this.body.setSize(12, 14, 2, 2);
-        this.body.velocity = new Phaser.Point(0, 80);    
+        this.body.setSize(48, 40, 8, 13);
+        this.body.velocity = new Phaser.Point(0, 80);
+        this.animations.play('idle');    
     }
 
     public update() : void
@@ -146,7 +145,7 @@ export class SpecialEnemy extends Enemy
     {
         this.reset(x, y); 
         this.rotation = 0;
-        this.body.setSize(12, 14, 2, 2);
+        this.body.setSize(48, 40, 5, 16);
 
         var finalX = this.x;
         var finalY = this.game.world.centerY - this.height * 3;
@@ -231,29 +230,8 @@ export class SpecialEnemy extends Enemy
         {
             this.tween.stop(false);
         }
-
         
-        this.emitter.x = this.x;
-        this.emitter.y = this.y;
-        this.emitter.width = this.body.width;
-        this.emitter.height = this.body.height;
-
-        //Scale without scaling
-        this.emitter.setScale(
-            0.5, 1.5, 
-            0.5, 1.5, 
-            1000, Phaser.Easing.Linear.None, false);
-        this.emitter.setAlpha(
-            1, 0.0, 1800, 
-            Phaser.Easing.Linear.None, false);
-        this.emitter.minParticleSpeed.set(0, 0);
-        this.emitter.maxParticleSpeed.set(0, 0);
-        this.emitter.gravity = 0;
-        this.emitter.setRotation(0, 0);
-        this.emitter.angularDrag = 0;
-        this.emitter.start(false, 2000, 100, 3);
-        
+        this.explosionEmitter.explode(new Phaser.Point(this.x,this.y), this.body.width, this.body.height);
         return super.kill();
     }
-
 }

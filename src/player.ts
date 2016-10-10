@@ -1,5 +1,6 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
 import { Weapon, SingleBulletWeapon, ScatterShotWeapon, TwinShot } from "./weapon.ts" ;
+import { ExplosionEmitter } from "./explosion_emitter.ts";
 export enum PlayerState
 {
     Starting,
@@ -16,7 +17,8 @@ export class Player extends Phaser.Sprite {
     lives : number;
     state : PlayerState;
     restartAt : number;
-    score : number;    
+    score : number;  
+    explosionEmitter : ExplosionEmitter;  
 
     constructor(game : Phaser.Game, x : number, y : number, bulletGroup : Phaser.Group) 
     {
@@ -34,6 +36,7 @@ export class Player extends Phaser.Sprite {
         this.weapon = twinShoot;
         this.lives = 2;
         this.alive = false;
+        this.explosionEmitter = new ExplosionEmitter(game);
         this.game.physics.arcade.enable(this);
     }
 
@@ -116,9 +119,7 @@ export class Player extends Phaser.Sprite {
     }   
 
     public kill() : Phaser.Sprite
-    {
-        //TODO: Add explosion visual effect
-        
+    {   
         if(this.lives > 0)
         {
             this.lives--;            
@@ -127,9 +128,9 @@ export class Player extends Phaser.Sprite {
         }
         else 
         {
-            //TODO: Add a game over text to the screen
             this.state = PlayerState.Dead; 
         }        
+        this.explosionEmitter.explode(new Phaser.Point(this.x, this.y), this.body.width, this.body.height);
         return super.kill();
     }
 }
