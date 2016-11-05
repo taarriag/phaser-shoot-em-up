@@ -1,19 +1,19 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
-import { Weapon, SingleBulletWeapon, ScatterShotWeapon, TwinShot } from "./weapon.ts" ;
-import { ExplosionEmitter } from "./explosion_emitter.ts";
+import * as Weapons from "./weapon" ;
+import { ExplosionEmitter } from "./explosion_emitter";
 export enum PlayerState
 {
-    Starting,
-    Playing,
-    Restarting,
-    Dead
+    Starting = 1,
+    Playing = 2,
+    Restarting = 3,
+    Dead = 4
 }
 
 export class Player extends Phaser.Sprite {
     speed : number;
     game : Phaser.Game;
     cursors : Phaser.CursorKeys;
-    weapon : Weapon;
+    weapon : Weapons.Weapon;
     lives : number;
     state : PlayerState;
     restartAt : number;
@@ -29,7 +29,7 @@ export class Player extends Phaser.Sprite {
         this.anchor.setTo(0.5, 0.5);
         this.cursors = this.game.input.keyboard.createCursorKeys();
         this.speed = 4;
-        var twinShoot = new TwinShot(this.game, bulletGroup, 'bullets', 8); 
+        var twinShoot = new Weapons.TwinShot(this.game, bulletGroup, 'bullets', 8); 
         twinShoot.fireRateMillis = 200;
         twinShoot.bulletSize = new Phaser.Rectangle(7, 0, 1, 8);
         twinShoot.bulletSpacing = 10; 
@@ -128,7 +128,7 @@ export class Player extends Phaser.Sprite {
         }
         else 
         {
-            this.state = PlayerState.Dead; 
+            this.state = PlayerState.Dead;
         }        
         this.explosionEmitter.explode(new Phaser.Point(this.x, this.y), this.body.width, this.body.height);
         return super.kill();

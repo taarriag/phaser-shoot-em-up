@@ -1,9 +1,9 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
 /// <reference path="typings/slick-ui.d.ts"/>
-import { EnemySpawner } from "./enemy_spawner.ts";
-import { Player, PlayerState } from "./player.ts";
-import { Enemy, SpecialEnemy } from "./enemy.ts";
-import { Bullet } from "./bullet.ts"; 
+import { EnemySpawner } from "./enemy_spawner";
+import { Player, PlayerState } from "./player";
+import { Enemy } from "./enemy";
+import { Bullet } from "./bullet"; 
 
 export class GameplayState extends Phaser.State
 {
@@ -19,8 +19,6 @@ export class GameplayState extends Phaser.State
     livesText : Phaser.Text;
     showDebug : boolean;
     enemySpawner : EnemySpawner;
-
-    slickUI : any;
     
     constructor()
     {
@@ -43,7 +41,6 @@ export class GameplayState extends Phaser.State
         this.game.scale.pageAlignHorizontally = true;
         this.game.load.spritesheet('player', "resources/new_player_64.png", 64, 64);
         this.game.load.spritesheet('bullets', "resources/bullets2.png", 32, 32);
-        //this.game.load.spritesheet('enemy', "resources/enemies.png", 16, 16);
         this.game.load.spritesheet('enemy', "resources/new_enemy_64.png", 64, 64);
         this.game.load.spritesheet('explosions', "resources/explosions.png", 16, 16);
 
@@ -58,14 +55,9 @@ export class GameplayState extends Phaser.State
     }
 
     create() {
-        //Retrieve game and input variables
         var game = this.game;
         var input = this.game.input;
-
-        //Debug related stuff
         game.time.advancedTiming = true;
-
-        //Enable arcade physics
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
         //Create the game groups
@@ -144,7 +136,6 @@ export class GameplayState extends Phaser.State
 
     playerEnemyCollision(playerObj : any, enemyObj : any)
     {
-        
         var player = playerObj as Player;
         if(player.state != PlayerState.Playing)
             return;
@@ -153,21 +144,24 @@ export class GameplayState extends Phaser.State
         enemy.kill();
         this.updateLivesText();
         
-        if(player.state == PlayerState.Dead)
+        //TODO: For some reason it does not allow comparison using the enum
+        if(player.lives <= 0)
             this.showGameOver();
     }
 
     playerEnemyBulletCollision(playerObj : any, bulletObj : any)
     {
+
         var player = playerObj as Player;
         var enemyBullet = bulletObj as Bullet;
-        if(player.state != PlayerState.Playing)
+        if(player.state != PlayerState.Playing) {
             return;
+        }
+
         player.kill();
         enemyBullet.kill();
         this.updateLivesText();
-
-        if(player.state == PlayerState.Dead)
+        if (player.lives <= 0)
             this.showGameOver();
     }
 
@@ -183,7 +177,6 @@ export class GameplayState extends Phaser.State
             this.updateScoreText();
         }
         playerBullet.kill();
-        
     }
 
     updateLivesText()
@@ -199,7 +192,7 @@ export class GameplayState extends Phaser.State
         this.scoreText.text = this.score.toString();
     }
 
-    showGameOver()
+    public showGameOver() : void
     {
         var world = this.game.world;
         var style = {font: "32px Arial", fill: "#ff0044", align: "center"}

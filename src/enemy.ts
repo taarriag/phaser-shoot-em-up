@@ -1,41 +1,143 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
-import { Weapon, SingleBulletWeapon } from "./weapon.ts";
-import { Player, PlayerState } from "./player.ts";
-import { ExplosionEmitter } from "./explosion_emitter.ts";
+import { Player, PlayerState } from "./player";
+import { ExplosionEmitter } from "./explosion_emitter";
+import * as EnemyStates from "./states/enemy_state";
+import * as Collections from 'typescript-collections';
+
+export enum State
+{
+    Starting,
+    Attacking,
+    Leaving,
+    Exploding
+}
+
+export class Enemy extends Phaser.Sprite {
+    private states : Collections.Dictionary<State, EnemyStates.EnemyState>; 
+    private currentState : EnemyStates.EnemyState;
+    private target : Phaser.Sprite;
+
+    constructor(game : Phaser.Game, x : number, y : number, 
+        enemyBullets : Phaser.Group)
+    {
+        super(game, x, y, 'enemy');
+        this.anchor.setTo(0.5, 0.5);
+        this.animations.add('idle', [0]);
+        this.exists = false;
+        this.health = 1;
+    
+        //Define the enemy states. Any state can switch the enemy current state.
+        //An enemy can only be in one state at any given type, but each state
+        //can execute many behaviors simultaneously.
+        this.states.setValue(State.Starting, new EnemyStates.Starting(this, this.game));
+        this.states.setValue(State.Leaving, new EnemyStates.Leaving(this, this.game));
+        /*this.states.setValue(State.Attacking, new EnemyStates.Attacking(this, this.game));
+        this.states.setValue(State.Exploding, new EnemyStates.Exploding(this, this.game));*/
+        this.currentState = null;
+    }
+
+    public setState(state : State) : void {
+        if (this.currentState != null) 
+            this.currentState.stop();
+        this.currentState = this.states.getValue(state);
+        this.currentState.start();
+    }
+
+    public getState(state : State) : EnemyStates.EnemyState
+    {
+     return this.states.getValue(state);   
+    }
+
+    public setTarget(target : Phaser.Sprite) {
+        this.target = target;
+    }
+
+    public getTarget() {
+        return this.target;
+    }
+
+    public start(pos : Phaser.Point) : void {
+        this.reset(pos.x, pos.y);
+        this.body.setSize(48, 40, 8, 3);
+        this.body.velocity = new Phaser.Point(0, 80);
+        this.animations.play('idle');
+        this.setState(State.Starting);
+    }
+
+    public update() : void
+    {
+        if(!this.exists)
+            return;
+
+        //Update the current state, if any.
+        //Note that this may change the current state and start it.
+        if(this.currentState != null)
+            this.currentState.update();
+
+        //Check if we are out of bounds, stop the current state
+        //And kill the enemy if it happens.
+        this.checkOutOfBounds();
+    }
+
+    protected checkOutOfBounds() : void
+    {
+        if(this.y > this.game.world.height + this.height * 2)
+        {
+            if(this.currentState != null)
+                this.currentState.stop();
+            this.kill();
+            
+        }
+    }
+
+    //TODO: Update damage so that we can show an explosion animation for the enemy.
+    /*public damage(amount : number) : Phaser.Sprite
+    {
+        if(this.health - amount <= 0)
+        {
+            currentStatae
+        }
+        return super.damage();
+    }*/
+
+    public kill() : Phaser.Sprite
+    {
+        if(this.currentState != null)
+        {
+            this.currentState.stop();
+            this.currentState = null;
+        }
+        return super.kill();
+    }
+}
 
 /***
  * For the time being, this will contain every possible enemy state.
  * Note that some enemies might not use all of them.
  * TODO: Change it for a more flexible FSM model using behaviours
  */
-export enum EnemyState
-{
-    Starting,
-    Shooting,
-    Leaving,
-    TurningToLeave
-}
+/*
 
-export class Enemy extends Phaser.Sprite
+export class OldEnemy extends Phaser.Sprite
 {
     public weapon : Weapon;
     public nextFireAt : number;
     public fireRate : number;
     public shooting : boolean;
+    public life : number = 1;
     protected target : Phaser.Sprite; 
-    protected state : EnemyState;
+    protected state : State;
     protected finalPos : Phaser.Point;
     protected delay : number = 0;
     protected explosionEmitter : ExplosionEmitter
-
-
+    
     constructor(game : Phaser.Game, x : number, y : number, enemyBullets : Phaser.Group)
     {
         super(game, x, y, 'enemy');
         this.anchor.setTo(0.5, 0.5);
         this.animations.add('idle', [0]);
-        /*this.animations.add('idle', [20])
-        this.animations.add('blinking', [21, 20], 8, false);*/
+        //this.animations.add('idle', [20])
+        //this.animations.add('blinking', [21, 20], 8, false);
         this.exists = false; 
         this.nextFireAt = 0;
         this.fireRate = 1000;
@@ -49,21 +151,15 @@ export class Enemy extends Phaser.Sprite
         
     }
 
-    /**
-     * Sets a target towards which the enemy could have a certain behavior
-     * E.g. rotate towards this target or following this target.
-     * 
-     * @param target The target object 
-     */
+    public Damage(amount : number)
+    {
+        this.life -= amount;
+    }
     public setTarget(target : Phaser.Sprite)
     {
         this.target = target;
     }   
 
-    /**
-     * Sets the final position of this enemy, usually this is the position
-     * the enemy will arrive to after the entry tween
-     */
     public setFinalPos(finalPos : Phaser.Point)
     {
         this.finalPos = finalPos;
@@ -133,9 +229,6 @@ export class Enemy extends Phaser.Sprite
 
 export class SpecialEnemy extends Enemy
 {
-    /*public static get STATE_STARTING() : number {return 0;}
-    public static get STATE_SHOOTING() : number {return 1;}
-    public static get STATE_LEAVING() : number {return 2;}*/
     protected tween : Phaser.Tween;
     protected state : number;
     protected numShots : number;
@@ -234,4 +327,5 @@ export class SpecialEnemy extends Enemy
         this.explosionEmitter.explode(new Phaser.Point(this.x,this.y), this.body.width, this.body.height);
         return super.kill();
     }
-}
+}*/
+

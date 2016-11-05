@@ -1,9 +1,8 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
-import {GameplayState} from "./gameplay_state.ts";
+import { GameplayState } from "./gameplay_state";
 
-class ShooterGame extends Phaser.Game{
+class ShooterGame extends Phaser.Game {
     game : Phaser.Game;
-
 
     constructor() {
         //super(180, 260, Phaser.CANVAS, 'content');

@@ -6,4 +6,6 @@
         "source/**/*.js": true,
         "test/**/*.js":true
     }
+,
+"typescript.tsdk": "./node_modules/typescript/lib"
 }

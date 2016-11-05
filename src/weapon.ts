@@ -53,7 +53,7 @@ export abstract class Weapon
     abstract fire(source : Phaser.Point, shootAngle : number) : void;
 }
 
-export class SingleBulletWeapon extends Weapon
+export class SingleBullet extends Weapon
 {
     
     constructor(game : Phaser.Game, bulletGroup : Phaser.Group, spriteKey : string, spriteFrame : number)
@@ -112,7 +112,7 @@ export class TwinShot extends Weapon
     }
 }
 
-export class ScatterShotWeapon extends Weapon
+export class ScatterShot extends Weapon
 {
     constructor(game : Phaser.Game, bulletGroup : Phaser.Group, spriteKey : string, spriteFrame : number)
     {
