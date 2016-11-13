@@ -25,7 +25,9 @@ export class Enemy extends Phaser.Sprite {
         this.animations.add('idle', [0]);
         this.exists = false;
         this.health = 1;
-    
+        
+        this.states = new Collections.Dictionary<State, EnemyStates.EnemyState>();
+
         //Define the enemy states. Any state can switch the enemy current state.
         //An enemy can only be in one state at any given type, but each state
         //can execute many behaviors simultaneously.
@@ -34,6 +36,7 @@ export class Enemy extends Phaser.Sprite {
         /*this.states.setValue(State.Attacking, new EnemyStates.Attacking(this, this.game));
         this.states.setValue(State.Exploding, new EnemyStates.Exploding(this, this.game));*/
         this.currentState = null;
+        this.alive = false;
     }
 
     public setState(state : State) : void {
@@ -58,8 +61,8 @@ export class Enemy extends Phaser.Sprite {
 
     public start(pos : Phaser.Point) : void {
         this.reset(pos.x, pos.y);
-        this.body.setSize(48, 40, 8, 3);
-        this.body.velocity = new Phaser.Point(0, 80);
+        this.body.setSize(52, 40, 8, 3);
+        //this.body.velocity = new Phaser.Point(0, 80);
         this.animations.play('idle');
         this.setState(State.Starting);
     }

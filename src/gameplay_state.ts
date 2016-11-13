@@ -1,6 +1,6 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
 /// <reference path="typings/slick-ui.d.ts"/>
-import { EnemySpawner } from "./enemy_spawner";
+import { EnemySpawner, TestEnemySpawner } from "./enemy_spawner/enemy_spawner";
 import { Player, PlayerState } from "./player";
 import { Enemy } from "./enemy";
 import { Bullet } from "./bullet"; 
@@ -38,6 +38,7 @@ export class GameplayState extends Phaser.State
         //this.game.renderer.renderSession.roundPixels = true;
         
         //Phaser.Canvas.setImageRenderingCrisp(this.game.canvas);
+        //TODO: Go back to using 32x32 sprites and upscaling.
         this.game.scale.pageAlignHorizontally = true;
         this.game.load.spritesheet('player', "resources/new_player_64.png", 64, 64);
         this.game.load.spritesheet('bullets', "resources/bullets2.png", 32, 32);
@@ -89,7 +90,7 @@ export class GameplayState extends Phaser.State
         this.updateScoreText();
 
         //Initialize the enemy spawner
-        this.enemySpawner = new EnemySpawner(this.game, this.player, this.enemies, this.enemyBullets);
+        this.enemySpawner = new TestEnemySpawner(this.game, this.player, this.enemies, this.enemyBullets);
         this.enemySpawner.start(); 
     }
 

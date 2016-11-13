@@ -40,6 +40,7 @@ export class TweenToPos extends Behavior
 
     public start() : void
     {
+        //TODO: Try to use the same tween and reuse it rather than creating new tweeners.
         this.tween = this.game.add.tween(this.sprite).to({x : this.targetPos.x, y : this.targetPos.y}, this.duration, this.easing, true, this.delay);
     }
 

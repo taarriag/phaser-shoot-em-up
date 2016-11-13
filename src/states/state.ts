@@ -38,7 +38,16 @@ export abstract class State
      */
     public init() : void
     {
+        this.reset();
     }
+
+    /**
+     * Override this method to reset all state variables to their default values.
+     * This method will be called on init and stop. It allows us to reuse
+     * the same state objects and set up the default values before starting
+     * its execution.
+     */
+    public abstract reset() : void;
 
     /**
      * Calls the start method on each behavior, this will be called 
@@ -65,5 +74,6 @@ export abstract class State
     public stop() : void 
     {
         this.behaviors.forEach(behavior => behavior.stop());
+        this.reset();
     }
 }

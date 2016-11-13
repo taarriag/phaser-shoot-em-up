@@ -5,6 +5,7 @@ import * as Weapons from "../weapon";
 
 /**
  * Base state for an enemy.
+ * Gives access to an enemy object to inheritor states.
  */
 export class EnemyState extends State {
     public enemy : Enemies.Enemy;
@@ -12,6 +13,11 @@ export class EnemyState extends State {
     public constructor(sprite : Phaser.Sprite, game : Phaser.Game) {
         super(sprite, game);
         this.enemy = sprite as Enemies.Enemy;
+    }
+
+    public reset() : void
+    {
+
     }
 
     public start() : void
@@ -40,8 +46,15 @@ export class Starting extends EnemyState {
     private arrivalTime : number = null;
     public init() : void 
     {
+        super.init();
         this.tweenToPos = new Behaviors.TweenToPos(this.sprite, this.game);
         this.behaviors.add(this.tweenToPos);
+    }
+
+    public reset() : void 
+    {
+        this.delay = 0;
+        this.targetPos = null;
     }
 
     public start() : void
@@ -52,8 +65,6 @@ export class Starting extends EnemyState {
         this.tweenToPos.delay = this.delay;
         // TODO: Allow these to be changed externally, they could be retrieved before
         // starting the enemy in the spawner.
-        this.targetPos.x = this.sprite.x;
-        this.targetPos.y = this.game.world.centerY - this.sprite.height * 3;
         this.tweenToPos.targetPos = this.targetPos;
         super.start();
     }
@@ -77,26 +88,29 @@ export class Starting extends EnemyState {
 
 export class Leaving extends EnemyState {
     private tweenToPos : Behaviors.TweenToPos;
-    //TODO: In the future, make this public so that it can be setState
-    //up by the spawner when creating an enemy.
-    private targetPos : Phaser.Point;
+    public delay : number;
+    public targetPos : Phaser.Point;
 
-    public init() : void
-    {
+    public init() : void {
+        super.init();
+        //Initialize only the behaviors or other private properties.
         this.tweenToPos = new Behaviors.TweenToPos(this.sprite, this.game);
         this.behaviors.add(this.tweenToPos);
+        this.targetPos = new Phaser.Point(0, 0);
     }
 
-    public start() : void
-    {
+    public reset() : void{
+        //Reset externally modifiable variables. This gets called by init and stop.
+        this.delay = 0;
+        this.targetPos = null;
+    }
+
+    public start() : void {
         this.tweenToPos.duration = 4000;
         this.tweenToPos.easing = Phaser.Easing.Back.InOut;
-        this.tweenToPos.delay = 0;
-        this.targetPos.x = this.sprite.x;
-        this.targetPos.y = this.game.world.height + this.sprite.height * 2; 
+        this.tweenToPos.delay = this.delay;
         this.tweenToPos.targetPos = this.targetPos; 
-        this.start();
-        
+        super.start();
     }
 }
 
