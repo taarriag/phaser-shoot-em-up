@@ -1,5 +1,6 @@
 /// <reference path="../typings/phaser.comments.d.ts"/>
 import * as Enemies from "../enemy"
+import * as Weapons from "../weapon";
 import * as EnemyStates from "../states/enemy_state"
 import { Player, PlayerState } from "../player"
 import * as Collections from 'typescript-collections';
@@ -71,14 +72,27 @@ export class ThreeShips extends EnemySpawnGroup{
       var startingState = enemy.getState(Enemies.State.Starting) as EnemyStates.Starting;
       startingState.delay = delay;
       startingState.targetPos = new Phaser.Point(x, finalY);
+      startingState.nextState = Enemies.State.Attacking;
 
       //Setup the leaving state
       //The enemies leave in reverse order
       var leavingState = enemy.getState(Enemies.State.Leaving) as EnemyStates.Leaving;
       leavingState.delay = 2*(maxDelay - delay);
       leavingState.targetPos = new Phaser.Point(x, this.game.world.height + enemy.height * 2);
+      
+      //Setup the attacking state by passing a simple bullet weapo
+      var attackingState = enemy.getState(Enemies.State.Attacking) as EnemyStates.Attacking;
+      var singleBullet = new Weapons.SingleBullet(this.game, this.enemyBullets, "bullets", 7);
+      singleBullet.bulletSpeed = 120;
+      singleBullet.bulletSize = new Phaser.Rectangle(106 - 3*32, 42 - 32, 12, 12);
+      attackingState.weapon = singleBullet;
+      attackingState.nextState = Enemies.State.Leaving;
+      
+      // Set enemy properties
+      enemy.rotation = Math.PI * 0.5;
       enemy.setTarget(this.player);
       enemy.start(new Phaser.Point(x,y));
+
     }
   }
 }

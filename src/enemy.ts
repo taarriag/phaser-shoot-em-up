@@ -33,8 +33,8 @@ export class Enemy extends Phaser.Sprite {
         //can execute many behaviors simultaneously.
         this.states.setValue(State.Starting, new EnemyStates.Starting(this, this.game));
         this.states.setValue(State.Leaving, new EnemyStates.Leaving(this, this.game));
-        /*this.states.setValue(State.Attacking, new EnemyStates.Attacking(this, this.game));
-        this.states.setValue(State.Exploding, new EnemyStates.Exploding(this, this.game));*/
+        this.states.setValue(State.Attacking, new EnemyStates.Attacking(this, this.game));
+        /*this.states.setValue(State.Exploding, new EnemyStates.Exploding(this, this.game));*/
         this.currentState = null;
         this.alive = false;
     }

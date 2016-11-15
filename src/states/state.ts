@@ -30,16 +30,16 @@ export abstract class State
 
         //Initialize any behaviors from child classes. 
         this.init();
+
+        //Reset the state modifiable properties. 
+        this.reset();
     }
 
     /**
      * Initializes the state. Override this method to instantiate and 
      * add behaviors to the state.
      */
-    public init() : void
-    {
-        this.reset();
-    }
+    public abstract init() : void;
 
     /**
      * Override this method to reset all state variables to their default values.

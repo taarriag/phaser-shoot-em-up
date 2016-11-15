@@ -1,5 +1,5 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
-import { Bullet } from "./bullet.ts"
+import { Bullet } from "./bullet"
 export abstract class Weapon
 {
     game : Phaser.Game;
