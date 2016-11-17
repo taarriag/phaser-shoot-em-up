@@ -37,43 +37,64 @@ export abstract class State
 
     /**
      * Initializes the state. Override this method to instantiate and 
-     * add behaviors to the state.
+     * add behaviors to the state. This method only gets called once (in this class 
+     * constructor)
      */
     public abstract init() : void;
 
     /**
      * Override this method to reset all state variables to their default values.
-     * This method will be called on init and stop. It allows us to reuse
-     * the same state objects and set up the default values before starting
-     * its execution.
+     * This method will be called after init and after stop. It allows us to reuse
+     * the same state objects and set up the default values so that other enemy instances
+     * can modify them.
      */
     public abstract reset() : void;
 
     /**
-     * Calls the start method on each behavior, this will be called 
-     * inmediately after setting the state of an enemy/npc.
+     * This is the first method that will be called after setting the 
+     * state of an enemy/npc.
      * Override this method to set any parameters on
      * the behaviors before calling start on each behavior. 
      */
-    public start() : void 
+    public abstract start() : void;
+        
+    /**
+     * Calls the start method on each behavior registered in this state.
+     */
+    public startBehaviors() : void 
     {
         this.behaviors.forEach(behavior => behavior.start());
     }
 
     /**
-     * Update is called in the main loop, updates each of the state
-     * behaviors.
+     * Updates behaviors registered in this state.
      */
-    public update() : void {
+    public updateBehaviors() : void
+    {
         this.behaviors.forEach(behavior => behavior.update());
     }
 
     /**
-     * Stops all the behaviors in this state.
+     * Update is called in the main loop after the behaviors have been updated.
+     * Use this to check the status of the state´s behaviors and act accordingly.
      */
-    public stop() : void 
+    public abstract update() : void;
+
+    /** 
+     * Stop is called after a different state has been set for the enemy.
+     * Override this method to apply any logic when this state has been stopped
+     */
+    public abstract stop() : void;
+
+    /**
+     * Stops all the behaviors in this state. This is called after stop
+     * and before reset whenever the enemy changes it state to something else.
+     */
+    public stopBehaviors() : void 
     {
         this.behaviors.forEach(behavior => behavior.stop());
         this.reset();
     }
+
+
 }

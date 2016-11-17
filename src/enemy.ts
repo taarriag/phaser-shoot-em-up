@@ -41,9 +41,14 @@ export class Enemy extends Phaser.Sprite {
 
     public setState(state : State) : void {
         if (this.currentState != null) 
+        {
             this.currentState.stop();
+            this.currentState.stopBehaviors();
+            this.currentState.reset();
+        }
         this.currentState = this.states.getValue(state);
         this.currentState.start();
+        this.currentState.startBehaviors();
     }
 
     public getState(state : State) : EnemyStates.EnemyState
@@ -75,8 +80,10 @@ export class Enemy extends Phaser.Sprite {
         //Update the current state, if any.
         //Note that this may change the current state and start it.
         if(this.currentState != null)
+        {
+            this.currentState.updateBehaviors();
             this.currentState.update();
-
+        }
         //Check if we are out of bounds, stop the current state
         //And kill the enemy if it happens.
         this.checkOutOfBounds();
