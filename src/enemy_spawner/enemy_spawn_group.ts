@@ -92,7 +92,6 @@ export class ThreeShips extends EnemySpawnGroup{
       enemy.rotation = Math.PI * 0.5;
       enemy.setTarget(this.player);
       enemy.start(new Phaser.Point(x,y));
-
     }
   }
 }

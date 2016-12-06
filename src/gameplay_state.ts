@@ -1,6 +1,6 @@
 /// <reference path="typings/phaser.comments.d.ts"/>
 /// <reference path="typings/slick-ui.d.ts"/>
-import { EnemySpawner, TestEnemySpawner } from "./enemy_spawner/enemy_spawner";
+import * as EnemySpawners from "./enemy_spawner/enemy_spawner";
 import { Player, PlayerState } from "./player";
 import { Enemy } from "./enemy";
 import { Bullet } from "./bullet"; 
@@ -18,7 +18,7 @@ export class GameplayState extends Phaser.State
     scoreText : Phaser.Text;
     livesText : Phaser.Text;
     showDebug : boolean;
-    enemySpawner : EnemySpawner;
+    enemySpawner : EnemySpawners.EnemySpawner;
     
     constructor()
     {
@@ -90,7 +90,7 @@ export class GameplayState extends Phaser.State
         this.updateScoreText();
 
         //Initialize the enemy spawner
-        this.enemySpawner = new TestEnemySpawner(this.game, this.player, this.enemies, this.enemyBullets);
+        this.enemySpawner = new EnemySpawners.RandomEnemySpawner(this.game, this.player, this.enemies, this.enemyBullets);
         this.enemySpawner.start(); 
     }
 
@@ -102,8 +102,7 @@ export class GameplayState extends Phaser.State
     }
 
     render() {
-        if(this.showDebug)
-        {
+        if(this.showDebug) {
             this.debugGroup(this.enemyBullets);
             this.debugGroup(this.playerBullets);
             this.debugGroup(this.enemies);
