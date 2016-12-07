@@ -44,7 +44,7 @@ export class Player extends Phaser.Sprite {
         var x = this.game.world.centerX;
         var y = this.game.world.height + this.height + 50;
         this.reset(x, y);
-        this.body.setSize(32, 14, 16, 35);
+        this.body.setSize(16, 14, 24, 32);
         this.state = PlayerState.Starting;
     }
 
@@ -122,14 +122,14 @@ export class Player extends Phaser.Sprite {
     {   
         if(this.lives > 0)
         {
-            this.lives--;            
+            this.lives--;    
             this.restartAt = this.game.time.now + 250;
             this.state = PlayerState.Restarting;
         }
         else 
         {
             this.state = PlayerState.Dead;
-        }        
+        }
         this.explosionEmitter.explode(new Phaser.Point(this.x, this.y), this.body.width, this.body.height);
         return super.kill();
     }

@@ -144,8 +144,7 @@ export class GameplayState extends Phaser.State
         enemy.kill();
         this.updateLivesText();
         
-        //TODO: For some reason it does not allow comparison using the enum
-        if(player.lives <= 0)
+        if (this.player.state == PlayerState.Dead)
             this.showGameOver();
     }
 
@@ -157,21 +156,18 @@ export class GameplayState extends Phaser.State
         if(player.state != PlayerState.Playing) {
             return;
         }
-
         player.kill();
         enemyBullet.kill();
         this.updateLivesText();
-        if (player.lives <= 0)
+        if (this.player.state == PlayerState.Dead)
             this.showGameOver();
     }
 
-    enemyPlayerBulletCollision(enemyObj : any, bulletObj : any)
-    {
+    enemyPlayerBulletCollision(enemyObj : any, bulletObj : any) {
         var enemy = enemyObj as Enemy;
         var playerBullet = bulletObj as Bullet;
         //Only kill the enemy if its actually being shown
-        if(enemy.y > 0)
-        {
+        if(enemy.y > 0) {
             this.score += 10;
             enemy.kill();
             this.updateScoreText();
@@ -179,21 +175,18 @@ export class GameplayState extends Phaser.State
         playerBullet.kill();
     }
 
-    updateLivesText()
-    {
+    updateLivesText() {
         if(this.player.state != PlayerState.Dead)
             this.livesText.text = this.player.lives.toString();
         else
             this.livesText.text = "";
     }
 
-    updateScoreText()
-    {
+    updateScoreText() {
         this.scoreText.text = this.score.toString();
     }
 
-    public showGameOver() : void
-    {
+    public showGameOver() : void {
         var world = this.game.world;
         var style = {font: "32px Arial", fill: "#ff0044", align: "center"}
         var gameOverText = this.game.add.text(world.centerX,world.centerY, "Game Over", style);

@@ -7,24 +7,54 @@ import * as Collections from 'typescript-collections';
 
 /**
  * Spawns a group of enemies. Inheritor classes should 
- * create the enemies in their group, define their appearance timing, etc.
+ * create the enemies in their spawn methods, defining their appearance, timing,
+ * behaviors, etc.
+ * The spawn group also keeps a registry of the enemies spawned within, so that
+ * they can be cleaned after it finished
  */
 export abstract class EnemySpawnGroup {
   protected game : Phaser.Game;
   protected player : Player;
   protected enemies : Phaser.Group;
   protected enemyBullets : Phaser.Group;
+  private groupEnemies : Collections.LinkedList<Enemies.Enemy>;
+  
   public constructor(
     game: Phaser.Game, 
     player: Player,
     enemies: Phaser.Group,
-    enemyBullets: Phaser.Group)
-    {
+    enemyBullets: Phaser.Group){
       this.game = game;
       this.player = player;
       this.enemies = enemies;
       this.enemyBullets = enemyBullets;
-    }
+      this.groupEnemies = new Collections.LinkedList<Enemies.Enemy>(); 
+  }
+
+  public isFinished() : boolean {
+    var finished = true;
+    this.groupEnemies.forEach(enemy => {
+      if(enemy.alive) {
+        finished = false;
+        return;
+      }
+    });
+    return finished;
+  }
+
+  public clear() : void {
+    this.groupEnemies.clear();
+  }
+
+  /**
+   * Starts an enemy and adds it to the list of enemies in the group. 
+   * Always use this method instead of starting the enemy so that
+   * it gets added the list containing this group enemies.
+   */
+  public startEnemy(enemy : Enemies.Enemy, pos : Phaser.Point) : void {
+    this.groupEnemies.add(enemy);
+    enemy.start(pos);
+  } 
 
   /** Spawns the group of enemies. */
   public abstract spawn() : void;
@@ -83,7 +113,7 @@ export class ThreeShips extends EnemySpawnGroup{
       //Setup the attacking state by passing a simple bullet weapo
       var attackingState = enemy.getState(Enemies.State.Attacking) as EnemyStates.Attacking;
       var singleBullet = new Weapons.SingleBullet(this.game, this.enemyBullets, "bullets", 7);
-      singleBullet.bulletSpeed = 120;
+      singleBullet.bulletSpeed = 200;
       singleBullet.bulletSize = new Phaser.Rectangle(106 - 3*32, 42 - 32, 12, 12);
       attackingState.weapon = singleBullet;
       attackingState.nextState = Enemies.State.Leaving;
@@ -91,7 +121,7 @@ export class ThreeShips extends EnemySpawnGroup{
       // Set enemy properties
       enemy.rotation = Math.PI * 0.5;
       enemy.setTarget(this.player);
-      enemy.start(new Phaser.Point(x,y));
+      this.startEnemy(enemy, new Phaser.Point(x,y));
     }
   }
 }

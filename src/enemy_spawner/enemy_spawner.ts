@@ -30,7 +30,7 @@ export abstract class EnemySpawner {
       this.enemies = enemies;
       this.enemyBullets = enemyBullets;
       this.spawnActions = new Array<SpawnAction>();
-      for (var i = 0; i < 5; i++) {
+      for (var i = 0; i < 10; i++) {
         this.enemies.add(new Enemies.Enemy(this.game, 0, 0, this.enemyBullets), true);
       }
     }
@@ -83,32 +83,44 @@ export class TestEnemySpawner extends EnemySpawner {
 }
 
 export class RandomEnemySpawner extends EnemySpawner {
+  private threeShips : EnemySpawnGroups.ThreeShips;
+  private activeGroup : EnemySpawnGroups.EnemySpawnGroup;
+  private groupSpawnMinTime = 1000;
+  private groupSpawnMaxTime : number = 2000; 
   protected nextEnemyAt : number;
 
   public init() : void {
-    this.nextEnemyAt = this.game.time.now + 2000;
-  }
+    this.nextEnemyAt = this.game.time.now + this.groupSpawnMinTime;
+    this.threeShips = new EnemySpawnGroups.ThreeShips(this.game, this.player, this.enemies, this.enemyBullets);
+}
 
   public update() {
     super.update();
+
     var now = this.game.time.now;
-    if(now > this.nextEnemyAt) {
-        this.createEnemyGroup();
-        this.nextEnemyAt = now + 5000;
+    if (now > this.nextEnemyAt && this.activeGroup == null || (this.activeGroup != null && this.activeGroup.isFinished())) {
+        if(this.activeGroup != null) {
+          this.activeGroup.clear();
+        }
+        this.spawnGroup();
+        this.nextEnemyAt = now + this.groupSpawnMinTime + Math.random() * (this.groupSpawnMaxTime - this.groupSpawnMinTime);
     }
   }
 
-  private createEnemyGroup() {
+  /**
+   * Creates a group only if it has finished.
+   */
+  private spawnGroup() {
     var now = this.game.time.now;
     var whichEnemy = Math.random();
-    var threeShips = new EnemySpawnGroups.ThreeShips(this.game, this.player, this.enemies, this.enemyBullets);
     if(whichEnemy <= 0.5) {
-      threeShips.mode = EnemySpawnGroups.ThreeShips.MODE_START_RIGHT;
+      this.threeShips.mode = EnemySpawnGroups.ThreeShips.MODE_START_LEFT;
     }
     else {
-      threeShips.mode = EnemySpawnGroups.ThreeShips.MODE_START_LEFT;
+      this.threeShips.mode = EnemySpawnGroups.ThreeShips.MODE_START_RIGHT;
     }
-    this.addSpawnGroup(now, threeShips);
+    this.activeGroup = this.threeShips;
+    this.addSpawnGroup(now, this.activeGroup);
   }
 }
 
