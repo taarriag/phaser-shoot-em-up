@@ -57,7 +57,9 @@ export class Starting extends EnemyState {
         }
     }
 
-    public stop() {}
+    public stop() {
+        this.tweenToPos.stop();
+    }
 }
 
 export class Leaving extends EnemyState {
@@ -87,7 +89,9 @@ export class Leaving extends EnemyState {
 
     public update() : void {}
 
-    public stop() : void {}
+    public stop() : void {
+        this.tweenToPos.stop();
+    }
 }
 
 export class Attacking extends EnemyState {
