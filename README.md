@@ -28,5 +28,7 @@ or compile directly with tsc
 
 ## Running the game on a local server:
 Start a server in the dist folder using http-server from Node:
+```
  cd dist/
  http-server
+```
