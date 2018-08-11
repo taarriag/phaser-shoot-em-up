@@ -1,26 +1,32 @@
-Compile with tsc -w
-Start a server in the dist folder using http-server from Node
-
-TODO:
-- Configure webpack (or gulp + browserify) again only with the required tasks
-- gulp + browserify have too many dependencies, especially gulp-typescript
-- Using webpack instead!!
-
-
-
-
-Instrucciones
-1. Configurar proyecto como npm
+## Setup
+1. Set up as npm project.
+```
  npm init
-
-2. Instalar globalmente typescript y webpack
+```
+2. Install typescript and webpack globally
+```
  npm install -g typescript webpack
-
-3. Instalar localmente dependencias de development
+```
+3. Install development dependencies locally.
+``` 
  npm install --save-dev ts-loader source-map-loader
-
-4. Referenciar typescript instalado en el sistema desde la carpeta de modulos
+```
+4. Reference globally installed typescript.
+```
  npm link typescript
+```
+## Compiling:
+Execute webpack (alternatively enable watch mode to recompile on changes) 
+```
+ webpack [-w]
+```
 
-5. Ejecutar webpack continuamente
- webpack -w
+or compile directly with
+```
+ tsc -w
+```
+
+## Running the game on a local server:
+Start a server in the dist folder using http-server from Node:
+ cd dist/
+ http-server
