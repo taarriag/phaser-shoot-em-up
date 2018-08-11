@@ -18,10 +18,10 @@
 ## Compiling:
 Execute webpack (alternatively enable watch mode to recompile on changes) 
 ```
- webpack [-w]
+ webpack -w
 ```
 
-or compile directly with
+or compile directly with tsc 
 ```
  tsc -w
 ```
