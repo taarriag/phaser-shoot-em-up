@@ -18,15 +18,17 @@
 ## Compiling:
 Execute webpack (alternatively enable watch mode to recompile on changes) 
 ```
- webpack [-w]
+ webpack -w
 ```
 
-or compile directly with
+or compile directly with tsc 
 ```
  tsc -w
 ```
 
 ## Running the game on a local server:
 Start a server in the dist folder using http-server from Node:
+```
  cd dist/
  http-server
+```
