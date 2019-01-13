@@ -22,7 +22,7 @@ class ShooterGame extends Phaser.Game {
 }
 
 window.onload = () => {
-    //Tutorial to understand states: http://www.emanueleferonato.com/2014/08/28/phaser-tutorial-understanding-phaser-states/
+    //Tutorial about phaser states: http://www.emanueleferonato.com/2014/08/28/phaser-tutorial-understanding-phaser-states/
     var game = new ShooterGame();
     //game.state.add("boot", new BootState());
     //game.state.add("preload", new PreloadState());

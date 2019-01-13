@@ -50,8 +50,6 @@ export class Bullet extends Phaser.Sprite
         {
             this.scale.x += this.scaleSpeed;
             this.scale.y += this.scaleSpeed;
-        }
-
-        
+        }        
     }
 }
